@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<div layout:fragment="content">
+    <section class="vh-100 bg-image"
+             style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
+        <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+            <div class="container h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+                        <div class="card" style="border-radius: 15px;">
+                            <div class="card-body p-5">
+                                <h2 class="text-uppercase text-center mb-5">로그인</h2>
+
+                                <form>
+
+                                    <div data-mdb-input-init class="form-outline mb-4">
+                                        <input type="text" id="form3Example1cg" class="form-control form-control-lg" />
+                                        <label class="form-label" for="form3Example1cg">아이디</label>
+                                    </div>
+
+
+                                    <div data-mdb-input-init class="form-outline mb-4">
+                                        <input type="password" id="form3Example4cg" class="form-control form-control-lg" />
+                                        <label class="form-label" for="form3Example4cg">비밀번호</label>
+                                    </div>
+
+
+                                    <div class="d-flex justify-content-center">
+                                        <button  type="button" data-mdb-button-init
+                                                 data-mdb-ripple-init class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">로그인</button>
+                                    </div>
+
+                                    <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a th:href="@{/user/signInForm}"
+                                                                                                            class="fw-bold text-body"><u>아이디 만들기</u></a></p>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

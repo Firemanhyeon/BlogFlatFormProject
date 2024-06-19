@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: BlogFlatformProject
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/blog
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+  thymeleaf:
+    cache: false
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+    enabled: true

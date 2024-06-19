@@ -1,0 +1,24 @@
+.myform {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    background-color: #f7f7f7;
+}
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+.login-container h2 {
+    margin-bottom: 20px;
+}
+.login-container .form-control {
+    margin-bottom: 10px;
+}
+.login-container button {
+    width: 100%;
+}
