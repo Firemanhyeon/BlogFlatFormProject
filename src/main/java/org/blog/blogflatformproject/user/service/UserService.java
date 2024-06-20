@@ -18,9 +18,10 @@ public class UserService {
     private final RoleRepository roleRepository;
 
 
-    public boolean login(User user){
+    public User login(User user){
+        User user1 = userRepository.findByUsernameAndPassword(user.getUsername(),user.getPassword());
 
-        return true;
+        return user1;
     }
 
     public User regUser(User user) {

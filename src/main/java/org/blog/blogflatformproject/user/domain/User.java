@@ -34,6 +34,9 @@ public class User {
     @Column(name = "image")
     private String image;
 
+    @Column(name="email_status")
+    private boolean emailStatus;
+
     @ManyToMany
     @JoinTable(
             name = "user_role",

@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "follow")
+@Table(name = "follow",
+        uniqueConstraints = @UniqueConstraint(columnNames={"follower_id", "following_id"}, name="chk_follows_unique_users"))
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
