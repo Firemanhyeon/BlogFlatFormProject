@@ -17,6 +17,7 @@ public class CommonRestController {
 
     private static final String UPLOAD_DIR = "/Users/jeonghohyeon/Desktop/blogUserImage/";
 
+    //이미지불러오기
     @GetMapping("/Users/jeonghohyeon/Desktop/blogUserImage/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable("filename") String filename) {
         try {

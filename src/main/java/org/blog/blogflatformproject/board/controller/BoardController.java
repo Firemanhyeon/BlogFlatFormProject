@@ -1,11 +1,17 @@
 package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.blog.blogflatformproject.blog.domain.Blog;
+import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
+import org.blog.blogflatformproject.board.domain.BoardDTO;
 import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
+import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.service.TagService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -14,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -22,6 +29,8 @@ import java.util.UUID;
 public class BoardController {
 
     private final BoardService boardService;
+    private final BlogService blogService;
+    private final TagService tagService;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -31,14 +40,19 @@ public class BoardController {
     //글 등록
     @PostMapping("/addboard")
     public String addBoard(@ModelAttribute Board board,
-                           @CookieValue(value="userId" , defaultValue = "") String logId){
-        Board board1 = boardService.addBoard(board,logId);
+                           @CookieValue(value="userId" , defaultValue = "") String logId,
+                           @RequestParam("tagName") String tags){
+        //태그 서비스호출 (이미 있는 태그면 그냥넣고 없는태그면 새로생성 후 Set안에넣기)
+        Set<Tag> tagSet = tagService.addOrFind(tags);
+        //글등록
+        Board board1 = boardService.addBoard(board,logId,tagSet);
         if(board1.getBoardId()!=null){
             return "redirect:/blog/"+logId;
         }else{
             return "redirect:/board/boardform";
         }
     }
+    //ckeditor 이미지업로드
     @PostMapping("/uploadImg")
     public ResponseEntity<?> uploadBlogImg(@RequestParam("upload") MultipartFile upload,
                                            RedirectAttributes redirectAttributes){
@@ -63,6 +77,20 @@ public class BoardController {
             return ResponseEntity.status(500).body("파일 업로드 실패!");
         }
     }
+    //게시글 상세창 이동
+    @GetMapping("/boardInfo/{boardid}")
+    public String getBoardInfo(@PathVariable("boardid") Long boardId , Model model){
+        Board brd = boardService.findById(boardId);
+        BoardDTO dto = new BoardDTO();
+        Set<Tag> set = brd.getTags();
 
+        dto.setBoardContent(brd.getBoardContent());
+        dto.setBoardTitle(brd.getBoardTitle());
+        dto.setBlogName(brd.getBlog().getBlogName());
+        dto.setCreateAt(brd.getCreateAt());
+        model.addAttribute("board" , dto);
+        model.addAttribute("tags" , set);
+        return "pages/board/boardInfo";
+    }
 
 }

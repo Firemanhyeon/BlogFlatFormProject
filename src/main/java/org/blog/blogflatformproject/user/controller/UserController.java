@@ -42,7 +42,7 @@ public class UserController {
             try{
                 String uploadDir="/Users/jeonghohyeon/Desktop/blogUserImage";
 
-                String fileName= UUID.randomUUID().toString()+"_"+imageFile.getOriginalFilename();
+                String fileName= UUID.randomUUID().toString();
                 Path filePath = Paths.get(uploadDir+"/"+fileName);
                 Files.copy(imageFile.getInputStream(),filePath);
 

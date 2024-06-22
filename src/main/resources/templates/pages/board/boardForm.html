@@ -5,11 +5,52 @@
       layout:decorate="~{layouts/default_layout}">
 <head>
     <meta charset="utf-8" />
-    <title>CKEditor 5 – Classic editor</title>
+    <title>새 글 작성</title>
     <script src="/js/build/ckeditor.js"></script>
     <link rel="stylesheet" href="/css/main.css">
     <style>
+        .ck.ck-editor {
+            max-width: 100%;
+        }
+        .ck-editor__editable {
+            min-height: 300px;
+        }
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 400px;
+        }
 
+        .tag {
+            background-color: #e0f7fa;
+            border: 1px solid #00bcd4;
+            border-radius: 15px;
+            padding: 5px 10px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .tag span {
+            margin-left: 5px;
+            color: #00796b;
+        }
+
+        #tag-input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 14px;
+        }
+        .hint {
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+        }
     </style>
 
 </head>
@@ -19,10 +60,18 @@
 <div layout:fragment="content" class="editor-container">
         <h1>새 글 작성</h1>
         <form  method="post" th:action="@{/board/addboard}">
-            <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
-                <label for="boardTitle">제목</label>
-                <input type="text" name="boardTitle" id="boardTitle" placeholder="제목">
+            <div class="input-group mb-3" style="margin-top: 30px;margin-bottom: 30px">
+                <label class="input-group-text" for="boardTitle">제목</label>
+                <input type="text" class="form-control" name="boardTitle" id="boardTitle" placeholder="제목">
             </div>
+            <div class="input-group mb-3" style="margin-top: 30px; margin-bottom: 30px">
+                <label class="input-group-text" for="tag-input">태그</label>
+                <div class="tag-container form-control">
+                    <input type="text" class="form-control"  id="tag-input" placeholder="태그입력은 태그를 입력하시고 , 로 구분지으시면 됩니다.">
+                </div>
+            </div>
+            <p class="hint">쉼표 혹은 엔터를 입력하여 태그를 등록 할 수 있습니다. 등록된 태그를 클릭하면 삭제됩니다.</p>
+            <input type="hidden" name="tagName" id="tags-input">
             <div class="form-group" style="margin-top: 30px">
                 <label for="openYn">게시글 상태</label>
                 <select id="openYn" name="openYn" class="form-control select">
@@ -57,13 +106,54 @@
         ClassicEditor
             .create(document.querySelector('#content'),{
                language:"ko",
+                height: 500,
                 ckfinder : {
                    uploadUrl: "/board/uploadImg",
                     withCredentials: true
                 }
             });
+        let tags = [];
+
+        //태그 추가
+        function addTag() {
+            let input = $('#tag-input');
+            let tagText = input.val().trim();
+
+            if (tagText) {
+                let tag = $('<div class="tag"></div>').text(tagText);
+                let removeIcon = $('<span>&times;</span>');
+                removeIcon.on('click', function() {
+                    $(this).parent().remove();
+                    // 각 태그 텍스트 출력 (태그 제거 후)
+                });
+                tag.append(removeIcon);
+                $('.tag-container').append(tag);
+                input.val('');
+
+                // 각 태그 텍스트 출력 (태그 추가 후)
+                printTags();
+
+            }
+        }
+
+        //태그에 x값 삭제하고 히든 input창 값에 , 로 구분지어 보내기
+        function printTags() {
+            tags = [];
+            $('.tag').each(function() {
+                tags.push($(this).text().replace('×', '').trim());
+            });
+            $('#tags-input').val(tags.join(','));
+        }
+
 
         $(document).ready(function(){
+
+            $('#tag-input').on('keypress', function(e) {
+                if (e.key === ',' || e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
 
             //상위카테고리 불러오기
             $.ajax({

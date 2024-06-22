@@ -23,6 +23,6 @@ public class Category {
     @Column(name = "pre_category")
     private Long preCategory;
 
-    @OneToMany(mappedBy = "category")
-    private Set<Board> boards;
+//    @OneToMany(mappedBy = "category")
+//    private Set<Board> boards;
 }
