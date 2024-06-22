@@ -1,6 +1,10 @@
 spring:
   application:
     name: BlogFlatformProject
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
 
   datasource:
     url: jdbc:mysql://localhost:3306/blog
@@ -19,3 +23,4 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     enabled: true
+

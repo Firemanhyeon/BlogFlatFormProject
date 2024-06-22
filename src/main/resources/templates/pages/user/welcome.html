@@ -8,13 +8,16 @@
     <title>Title</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/login.css">
-    <style>
-
-    </style>
+    <script>
+        function redirectToLogin(){
+            window.location.href='/user/loginform';
+        }
+    </script>
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>회원가입 welcomPage</h1>
+    <h1>회원가입이 완료되었습니다!!</h1>
+    <button class="btn btn-primary btn-lg btn-block" th:onclick="redirectToLogin()">로그인하러가기</button>
 </div>
 </body>
 </html>

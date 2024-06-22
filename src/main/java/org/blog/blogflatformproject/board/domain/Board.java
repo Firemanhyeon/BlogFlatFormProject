@@ -15,10 +15,11 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boadId;
+    private Long boardId;
 
     @Column(name = "board_title")
     private String boardTitle;
@@ -49,6 +50,7 @@ public class Board {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
 
     @ManyToOne
     @JoinColumn(name = "series_id")

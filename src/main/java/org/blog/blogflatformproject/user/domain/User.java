@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.board.domain.Like;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -31,8 +32,14 @@ public class User {
     @Column(name = "registration_date")
     private LocalDate registrationDate;
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "image_path")
+    private String imagePath;
+
+    @Column(name = "image_name")
+    private String imageName;
+    //데이터베이스 저장되지않는 임시 필드
+    @Transient
+    private MultipartFile imageFile;
 
     @Column(name="email_status")
     private boolean emailStatus;

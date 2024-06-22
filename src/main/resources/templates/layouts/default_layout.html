@@ -1,29 +1,54 @@
 <!DOCTYPE html>
-<!--라이브러리 참조 : Thymeleaf & Thymeleaf Layout -->
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <!--공통 JS / CSS 영역을 관리하는 환경 영역-->
-    <head>
-        <meta charset="UTF-8" />
-        <title>thymeleaf layout</title>
-        <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1, user-scalable=yes,initial-scale=1.0" />
-        <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+<head>
+    <meta charset="UTF-8" />
+    <title>thymeleaf layout</title>
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1, user-scalable=yes,initial-scale=1.0" />
+    <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 
-    </head>
-    <body>
-        <!-- header fragment 사용 -->
-        <th:block th:replace="~{fragments/header :: headerFragment}"></th:block>
-        <!-- content fragment 사용 -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content {
+            flex: 1;
+        }
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- header fragment 사용 -->
+    <th:block th:replace="~{fragments/header :: headerFragment}"></th:block>
+
+    <!-- content fragment 사용 -->
+    <div class="content">
         <th:block layout:fragment="content"></th:block>
-        <!-- footer fragment 사용 -->
-        <div th:replace="~{fragments/footer :: footerFragment}"></div>
+    </div>
+
+    <!-- footer fragment 사용 -->
+    <div th:replace="~{fragments/footer :: footerFragment}"></div>
+</div>
+
 <script>
     $(document).ready(function(){
     })
 </script>
-
-    </body>
-
+</body>
 </html>

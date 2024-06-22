@@ -1,13 +1,11 @@
 package org.blog.blogflatformproject.blog.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.user.domain.User;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -28,7 +26,7 @@ public class Blog {
     private String blogDescription;
 
     @Column(name = "blog_registration_date")
-    private String blogRegistrationDate;
+    private LocalDate blogRegistrationDate;
 
     @OneToOne
     @JoinColumn(name = "user_id")

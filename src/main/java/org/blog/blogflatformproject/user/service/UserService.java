@@ -17,13 +17,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-
+    //로그인
     public User login(User user){
         User user1 = userRepository.findByUsernameAndPassword(user.getUsername(),user.getPassword());
 
         return user1;
     }
-
+    //회원가입
     public User regUser(User user) {
         Role userRole = roleRepository.findByRoleName("일반사용자");
         // 사용자에게 역할 할당
@@ -35,12 +35,15 @@ public class UserService {
         User user1 = userRepository.save(user);
         return user1;
     }
-
+    //아이디중복체크
     public boolean findByUserName(String username){
         if(userRepository.findByUsername(username)==null){
             return false;
         }else{
             return true;
         }
+    }
+    public User findByUserId(Long id){
+        return userRepository.findById(id).orElse(null);
     }
 }

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <meta charset="utf-8" />
+    <title>CKEditor 5 – Classic editor</title>
+    <script src="/js/build/ckeditor.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+
+    </style>
+
+</head>
+<body>
+
+
+<div layout:fragment="content" class="editor-container">
+        <h1>새 글 작성</h1>
+        <form  method="post" th:action="@{/board/addboard}">
+            <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+                <label for="boardTitle">제목</label>
+                <input type="text" name="boardTitle" id="boardTitle" placeholder="제목">
+            </div>
+            <div class="form-group" style="margin-top: 30px">
+                <label for="openYn">게시글 상태</label>
+                <select id="openYn" name="openYn" class="form-control select">
+                    <option value="true">공개</option>
+                    <option value="false">비공개</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+                <label for="temporaryYn">임시게시글 여부</label>
+                <select id="temporaryYn" name="temporaryYn" class="form-control select">
+                    <option value="true">출간</option>
+                    <option value="false">임시글</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+                <label for="preCategory">상위카테고리</label>
+                <select id="preCategory" name="preCategory" class="form-control select">
+                </select>
+            </div>
+            <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+                <label for="downCategory">하위카테고리</label>
+                <select id="downCategory" name="category" class="form-control select">
+                </select>
+            </div>
+            <textarea name="boardContent" id="content" ></textarea>
+
+            <input type="submit" th:value="저장" class="btn btn-primary btn-lg">
+
+        </form>
+
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#content'),{
+               language:"ko",
+                ckfinder : {
+                   uploadUrl: "/board/uploadImg",
+                    withCredentials: true
+                }
+            });
+
+        $(document).ready(function(){
+
+            //상위카테고리 불러오기
+            $.ajax({
+                url:"/category/getPreCategory",
+                method: "GET",
+                success:function(result){
+                    let preCategorySelect = $("#preCategory");
+                    preCategorySelect.empty();
+
+                    $.each(result, function(index, category) {
+                        let option = $("<option></option>")
+                            .attr("value", category.categoryId)
+                            .text(category.categoryName);
+                        preCategorySelect.append(option);
+
+                    });
+                    getDownCategory();
+                },
+                error:function(err){
+                    console.log(err);
+                }
+            })
+            $("#preCategory").change(function() {
+                getDownCategory();
+            });
+            function getDownCategory(){
+                let preCategory = $("#preCategory").val();
+                $.ajax({
+                    url:"/category/getDownCategory",
+                    method: "GET",
+                    data: {
+                        preCategory:preCategory
+                    },
+                    success:function(result){
+                        console.log(result);
+                        let downCategorySelect = $("#downCategory");
+                        downCategorySelect.empty();
+                        $.each(result, function(index, category) {
+                            let option = $("<option></option>")
+                                .attr("value" , category.categoryId)
+                                .text(category.categoryName);
+                            downCategorySelect.append(option);
+                        })
+
+                    },
+                    error:function(err){
+                        console.log(err);
+                    }
+                })
+            }
+
+        })
+    </script>
+</div>
+
+</body>
+</html>
