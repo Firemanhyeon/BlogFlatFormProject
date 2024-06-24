@@ -32,7 +32,7 @@ public class Blog {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "blog")
+    @OneToMany(mappedBy = "blog" ,cascade = CascadeType.ALL)
     private Set<Board> board;
 
     @OneToMany(mappedBy = "blog")

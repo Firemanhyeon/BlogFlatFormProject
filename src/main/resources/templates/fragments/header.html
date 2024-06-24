@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!-- Thymeleaf 선언 / headerFragment 임을 선언-->
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <!--headerFragment 선언-->
 <div th:fragment="headerFragment">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -22,10 +23,20 @@
                     <div id="blogForm">
                         <form  class="d-flex"  th:action="@{/board/boardform}">
                             <button  class="btn btn-outline-dark" type="submit">
-                                <i class="bi-cart-fill me-1"></i>
+                                <i class="bi-cart-fill me-1" ></i>
                                 새글작성
                             </button>
                         </form>
+                    </div>
+                </div>
+                <div id="profileDropdown" class="profile-dropdown">
+                    <img id="profileImage" src="" alt="Profile Image">
+                    <div class="dropdown-content" id="dropdown">
+                        <a href="/blog/mypage">내 벨로그</a>
+                        <a href="/blog/drafts">임시 글</a>
+                        <a href="/blog/reading-list">내가 읽은 블로그</a>
+                        <a href="/blog/settings">설정</a>
+                        <a href="/user/logout">로그아웃</a>
                     </div>
                 </div>
             </div>
@@ -44,7 +55,40 @@
                 loginForm.show();
             }
         });
-    </script>
 
+        let profileDropdown = $("#profileDropdown");
+        let profileImage = $("#profileImage");
+        let dropDown = $("#dropdown");
+        dropDown.hide();
+        // 프로필 이미지 클릭 시 드롭다운 메뉴 표시
+        profileImage.on("click", function() {
+            dropDown.toggle();
+        });
+
+        // 드롭다운 메뉴 외부 클릭 시 메뉴 숨기기
+        $(window).on("click", function(event) {
+            if (!profileDropdown.is(event.target) && profileDropdown.has(event.target).length === 0) {
+
+                dropDown.hide();
+            }
+        });
+
+        $.ajax({
+            url:"/user/getUser",
+            method:"GET",
+            success:function(result){
+                console.log(result);
+                if(result!='noImg'){
+                    $('#profileImage').attr('src', result).addClass('circular-image');
+                }else{
+                    $('#profileImage').hide();
+                }
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+
+    </script>
 </div>
 </html>

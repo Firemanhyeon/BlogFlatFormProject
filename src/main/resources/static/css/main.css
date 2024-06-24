@@ -10825,3 +10825,39 @@ textarea.form-control-lg {
     }
 
 }
+.circular-image {
+    width: 50px; /* 원하는 너비 */
+    height: 50px; /* 원하는 높이 */
+    border-radius: 50%; /* 동그랗게 만들기 위해 반지름을 50%로 설정 */
+    object-fit: cover; /* 이미지가 요소를 덮도록 설정 */
+    margin-left: 20px;
+}
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.profile-dropdown img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover {background-color: #f1f1f1}
+.dropdown-content.show{
+    display: block;
+}

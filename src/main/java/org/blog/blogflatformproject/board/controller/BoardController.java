@@ -44,6 +44,7 @@ public class BoardController {
                            @RequestParam("tagName") String tags){
         //태그 서비스호출 (이미 있는 태그면 그냥넣고 없는태그면 새로생성 후 Set안에넣기)
         Set<Tag> tagSet = tagService.addOrFind(tags);
+        System.out.println("addboard탓음");
         //글등록
         Board board1 = boardService.addBoard(board,logId,tagSet);
         if(board1.getBoardId()!=null){

@@ -25,6 +25,7 @@ public class UserController {
     //로그인창이동
     @GetMapping("/loginform")
     public String logInPage(){
+        System.out.println("로그인폼 요청");
         return "pages/user/loginForm";
     }
     //회원가입창이동
@@ -90,5 +91,4 @@ public class UserController {
     public String goErrorPage(){
         return "/pages/user/error";
     }
-    //로그인
 }

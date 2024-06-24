@@ -24,7 +24,7 @@ public class Board {
     @Column(name = "board_title")
     private String boardTitle;
 
-    @Column(name = "board_content")
+    @Column(name = "board_content",length = 10000)
     private String boardContent;
 
     @Column(name = "created_at")
@@ -38,6 +38,9 @@ public class Board {
 
     @Column(name = "visit_count")
     private int visitCount;
+
+    @Column(name = "first_image_path")
+    private String firstImagePath;
 
     @ManyToOne
     @JoinColumn(name = "blog_id")

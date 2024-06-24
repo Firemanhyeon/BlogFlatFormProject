@@ -8,6 +8,13 @@
     <title>Title</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/blog.css">
+    <style>
+        .card-img-top {
+            width: 100%;       /* 부모 요소의 너비에 맞추기 */
+            height: 200px;     /* 고정 높이 설정 */
+            object-fit: cover; /* 이미지가 고정된 크기에 맞게 잘리도록 설정 */
+        }
+    </style>
     <script>
 
 
@@ -44,9 +51,9 @@
         </div>
         <nav id="nav-tabs" class="nav-tabs">
             <ul>
-                <li class="tab-item" id="posts-tab"><a onclick="boardClick()">글</a></li>
-                <li class="tab-item" id="series-tab"><a onclick="seriesClick()">시리즈</a></li>
-                <li class="tab-item" id="about-tab"><a  onclick="aboutClick()">소개</a></li>
+                <li class="tab-item" id="posts-tab" style="cursor: pointer"><a onclick="boardClick()" >글</a></li>
+                <li class="tab-item" id="series-tab" style="cursor: pointer"><a onclick="seriesClick()">시리즈</a></li>
+                <li class="tab-item" id="about-tab" style="cursor: pointer"><a  onclick="aboutClick()">소개</a></li>
             </ul>
         </nav>
         <div id="content" class="content">
@@ -59,7 +66,7 @@
                             <div th:each="board:${boardList}" class="col mb-5" >
                                 <div class="card h-100">
                                     <!-- Product image-->
-                                    <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
+                                    <img class="card-img-top" th:src="${board.firstImagePath}" alt="..."  />
                                     <!-- Product details-->
                                     <div class="card-body p-4">
                                         <div class="text-center">
@@ -84,7 +91,7 @@
             </div>
                 <!--     내 시리즈 섹션     -->
                 <div id="series-content" style="display: none;">
-                    <p>시리즈</p>
+                    <p >시리즈</p>
                 </div>
                 <!--      내 소개 섹션      -->
                 <div id="about-content" style="display: none;">
