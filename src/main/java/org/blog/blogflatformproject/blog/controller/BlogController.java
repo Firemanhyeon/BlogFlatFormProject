@@ -5,7 +5,7 @@ import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.service.BoardService;
-import org.blog.blogflatformproject.config.UserContext;
+import org.blog.blogflatformproject.user.domain.UserContext;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -66,14 +66,16 @@ public class BlogController {
 
     //유저 설정 페이지 접근제어
     @GetMapping("/settings")
-    public String myBlogSetting(@CookieValue(value="userId" , defaultValue = "") String userId , RedirectAttributes redirectAttributes ){
-        String contextId = UserContext.getUserId();
-        if(userId.equals("")){
+    public String myBlogSetting(@CookieValue(value="userId" , defaultValue = "") String userId , Model model ){
+        String contextId = UserContext.getUserId();//스레드로컬에서 가져온 id
+        if(contextId.equals("")){
             return "redirect:/user/loginform";
         }
-        return "redirect:/blog/setting/"+userId;
+        //해당유저의 설정페이지로 이동하기
+        User user = userService.findByUserId(Long.parseLong(userId));
+        model.addAttribute("user" , user);
+        return "pages/user/userSetting";
     }
 
-    //유저설정페이지이동
 
 }

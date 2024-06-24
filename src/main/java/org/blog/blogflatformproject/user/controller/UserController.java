@@ -91,4 +91,14 @@ public class UserController {
     public String goErrorPage(){
         return "/pages/user/error";
     }
+    @GetMapping("/logout")
+    public String logOut(HttpServletResponse response){
+        Cookie cookie = new Cookie("userId" , null);
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        return "redirect:/";
+    }
 }

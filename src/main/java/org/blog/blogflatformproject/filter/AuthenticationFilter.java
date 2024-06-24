@@ -5,7 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Setter;
-import org.blog.blogflatformproject.config.UserContext;
+import org.blog.blogflatformproject.user.domain.UserContext;
 import org.blog.blogflatformproject.user.service.UserService;
 
 import java.io.IOException;

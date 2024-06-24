@@ -1,7 +1,4 @@
-package org.blog.blogflatformproject.config;
-
-import lombok.Getter;
-import lombok.Setter;
+package org.blog.blogflatformproject.user.domain;
 
 
 public class UserContext {
