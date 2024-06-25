@@ -22,6 +22,7 @@ public class CommonRestController {
     public ResponseEntity<Resource> serveFile(@PathVariable("filename") String filename) {
         try {
             // 파일 경로를 생성하고, 리소스를 로드
+            System.out.println("파일불러오기");
             Path file = Paths.get(UPLOAD_DIR).resolve(filename);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {

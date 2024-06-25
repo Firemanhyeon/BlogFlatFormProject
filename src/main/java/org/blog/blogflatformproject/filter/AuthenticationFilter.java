@@ -59,7 +59,6 @@ public class AuthenticationFilter implements Filter {
         }else{
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/user/loginform");
         }
-
     }
 
     @Override

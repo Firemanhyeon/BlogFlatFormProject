@@ -148,7 +148,7 @@
         $(document).ready(function(){
 
             $('#tag-input').on('keypress', function(e) {
-                if (e.key === ',' || e.key === 'Enter') {
+                if (e.key == ',' || e.key === 'Enter') {
                     e.preventDefault();
                     addTag();
                 }

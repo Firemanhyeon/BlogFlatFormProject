@@ -23,6 +23,11 @@ public class BoardService {
         private final BoardRepository boardRepository;
         private final BlogRepository blogRepository;
 
+        //최근날짜별로 boardList가져오기
+        public List<Board> getBoardListOrderByCreatedAt(){
+            return boardRepository.findAllOrderByCreateAtDesc();
+        }
+
         //게시글생성
         public Board addBoard(Board board , String userId , Set<Tag> tags) {
             Blog blog = blogRepository.findByUser_UserId(Long.parseLong(userId));
