@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/default_layout}">
+<head>
+    <meta charset="UTF-8">
+    <script src="/js/build/ckeditor.js"></script>
+
+    <title>게시글수정</title>
+    <style>
+        .ck.ck-editor {
+            max-width: 100%;
+        }
+        .ck-editor__editable {
+            min-height: 300px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" class="editor-container">
+    <form  method="post" th:action="@{/board/updateboard}" id="updateBoard">
+        <input type="hidden" th:value="${board.boardId}" name="boardId">
+        <div class="input-group mb-3" style="margin-top: 30px;margin-bottom: 30px">
+            <label class="input-group-text" for="boardTitle">제목</label>
+            <input type="text" class="form-control" name="boardTitle" id="boardTitle" th:value="${board.boardTitle}">
+        </div>
+        <div class="form-group" style="margin-top: 30px">
+            <label for="openYn">게시글 상태</label>
+            <select id="openYn" name="openYn" class="form-control select">
+                <option th:selected="${board.openYn == true}" value="true">공개</option>
+                <option th:selected="${board.openYn == false}" value="false">비공개</option>
+            </select>
+        </div>
+        <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+            <label for="temporaryYn">임시게시글 여부</label>
+            <select id="temporaryYn" name="temporaryYn" class="form-control select">
+                <option th:selected="${board.temporaryYn == true}" value="true">출간</option>
+                <option th:selected="${board.temporaryYn == false}" value="false">임시글</option>
+            </select>
+        </div>
+        <textarea name="boardContent" id="content" th:text="${board.boardContent}"></textarea>
+
+        <input type="submit" th:value="저장" class="btn btn-primary btn-lg">
+
+    </form>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#content'),{
+                language:"ko",
+                height: 500,
+                ckfinder : {
+                    uploadUrl: "/board/uploadImg",
+                    withCredentials: true
+                }
+            });
+        $(document).ready(function() {
+            $('#updateBoard').submit(function(event) {
+                event.preventDefault(); // 기본 제출 동작 방지
+                let formData = $(this).serialize(); // 폼 데이터 직렬화
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'PUT',
+                    data: formData,
+                    success: function(response) {
+                        window.location.href='/blog/mypage'
+                        // 성공 처리
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('에러:', error);
+                        // 에러 처리
+                    }
+                });
+            });
+        });
+
+    </script>
+</div>
+</body>
+</html>

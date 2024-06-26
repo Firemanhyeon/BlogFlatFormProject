@@ -7,15 +7,28 @@
     <meta charset="UTF-8">
     <title>board</title>
     <link rel="stylesheet" href="/css/board.css">
+    <style>
+        a {
+            text-decoration: none; /* 밑줄 제거 */
+            color: black; /* 글자 색상 검은색으로 설정 */
+        }
+        a:hover {
+            cursor: pointer;
+            color: black;
+        }
+
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
     <div id="blog-container">
         <h1 id="blog-title" th:text="${board.boardTitle}">boardTitle</h1>
+        <input type="hidden" th:value="${board.blogId}" id="blogId">
         <div id="blog-info">
             <span id="blog-author" th:text="${board.blogName}">blogName</span>
             <span id="blog-date" th:text="${board.createAt}">boardcreatedAt</span>
-            <button id="follow-btn">팔로우</button>
+
+
         </div>
         <div id="blog-tags">
 
@@ -28,7 +41,50 @@
     <script th:inline="javascript">
         let obj = [[${board}]];
         let tags = [[${tags}]];
-        console.log(tags);
+        //자기게시물일때만 수정, 삭제 버튼 보이기
+        console.log(obj);
+        let boardId = obj.boardId;
+        console.log(boardId);
+        $.ajax({
+            url:"/blog/check",
+            method:"GET",
+            success: function(result){
+                let blogId = $("#blogId").val();
+                if(result == blogId){
+                    $('<a>', {
+                        href:'/board/update/'+boardId,
+                        id: 'updateBoard',
+                        text: '수정'
+                    }).appendTo('#blog-info');
+                    // 삭제 링크 생성 및 추가
+                    $('<a>', {
+                        id: 'deleteBoard',
+                        text: '삭제'
+                    }).appendTo('#blog-info');
+
+                    $("#deleteBoard").click(function(){
+
+                        $.ajax({
+                            url:"/board/delete/"+boardId,
+                            method: "DELETE",
+                            success:function(result){
+                                if(result=='ok'){
+                                    window.location.href = "/blog/mypage";
+                                }
+                            },
+                            error:function(err){
+                                console.log(err);
+                            }
+                        })
+                    })
+                }
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+
+
         // tagName을 기준으로 오름차순으로 정렬
         tags.sort((a, b) => {
             if (a.tagName < b.tagName) {
@@ -44,7 +100,6 @@
             newTag.text(tag.tagName);
             $("#blog-tags").append(newTag);
         })
-
 
         document.getElementById('blog-content').innerHTML += obj.boardContent;
     </script>

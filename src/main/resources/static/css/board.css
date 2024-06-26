@@ -90,3 +90,7 @@ pre {
     border-radius: 5px;
     overflow: auto;
 }
+a {
+    margin-left: 20px;
+    color: black;
+}

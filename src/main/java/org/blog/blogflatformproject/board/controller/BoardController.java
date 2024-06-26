@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -88,10 +89,39 @@ public class BoardController {
         dto.setBoardContent(brd.getBoardContent());
         dto.setBoardTitle(brd.getBoardTitle());
         dto.setBlogName(brd.getBlog().getBlogName());
+        dto.setBlogId(brd.getBlog().getBlogId());
+        dto.setBoardId(brd.getBoardId());
         dto.setCreateAt(brd.getCreateAt());
         model.addAttribute("board" , dto);
         model.addAttribute("tags" , set);
         return "pages/board/boardInfo";
+    }
+    //게시글 수정창 이동
+    @GetMapping("/update/{boardId}")
+    public String getBoardUpdate(@PathVariable("boardId") Long boardId ,
+                                @CookieValue(value="userId" , defaultValue = "") Long logId ,
+                                 Model model){
+
+        Blog blog = blogService.findByUserId(logId);
+        Set<Board> set = blog.getBoard();
+        for(Board post : set){
+            if(Objects.equals(post.getBoardId(), boardId)){
+                Board board = boardService.findById(boardId);
+                System.out.println(board);
+                model.addAttribute("board",board);
+                return "pages/board/updateForm";
+            }
+        }
+        return null;
+    }
+
+    @DeleteMapping("/delete/{boardId}")
+    public  ResponseEntity<String> getBoardDelete(@PathVariable("boardId") Long boardId){
+
+        if(boardService.deleteBoard(boardId)){
+            return ResponseEntity.ok("ok");
+        }
+        return ResponseEntity.ok("fail");
     }
 
 }

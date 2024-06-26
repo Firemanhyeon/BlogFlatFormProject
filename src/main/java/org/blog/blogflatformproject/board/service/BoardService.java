@@ -39,6 +39,24 @@ public class BoardService {
             board.setFirstImagePath(firstImagePath);
             return boardRepository.save(board);
         }
+
+        //게시글 수정
+        public Board updateBoard(Board board){
+            Board beforeBoard = findById(board.getBoardId());
+            System.out.println(beforeBoard);
+            System.out.println(board);
+
+            beforeBoard.setBoardTitle(board.getBoardTitle());
+            beforeBoard.setBoardContent(board.getBoardContent());
+            beforeBoard.setOpenYn(board.isOpenYn());
+            beforeBoard.setTemporaryYn(board.isTemporaryYn());
+            String firstImagePath = sanitizeBoardContent(board.getBoardContent());
+            firstImagePath = extractFirstImageUrl(firstImagePath) ;
+            beforeBoard.setFirstImagePath(firstImagePath);
+
+            return boardRepository.save(beforeBoard);
+        }
+
         //해당유저의 글찾기
         public List<Board> findByUserId(Long userId){
             Blog blog = blogRepository.findByUser_UserId(userId);
@@ -74,5 +92,15 @@ public class BoardService {
 
         // 이미지가 없는 경우 null을 반환한다
         return null;
+    }
+
+    //게시글삭제
+    public boolean deleteBoard(Long boardId){
+            Board brd = boardRepository.findById(boardId).orElse(null);
+            if(brd!=null){
+                boardRepository.delete(brd);
+                return true;
+            }
+            return false;
     }
 }
