@@ -73,7 +73,9 @@ public class BlogController {
         }
         //해당유저의 설정페이지로 이동하기
         User user = userService.findByUserId(Long.parseLong(userId));
+        Blog blog = blogService.findByUserId(Long.parseLong(userId));
         model.addAttribute("user" , user);
+        model.addAttribute("blog", blog);
         return "pages/user/userSetting";
     }
 

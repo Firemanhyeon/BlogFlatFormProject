@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.domain.BoardDTO;
+import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
 import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.service.BoardService;

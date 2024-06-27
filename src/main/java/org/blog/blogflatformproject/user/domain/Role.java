@@ -17,10 +17,10 @@ import java.util.Set;
 public class Role {
 
     @Id
-    @Column(name = "role_id")
+    @Column(name = "roles_id")
     private Long roleId;
 
-    @Column(name = "role_name")
+    @Column(name = "roles_name")
     private String roleName;
 
 }

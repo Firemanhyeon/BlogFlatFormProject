@@ -1,4 +1,4 @@
-package org.blog.blogflatformproject.board.domain;
+package org.blog.blogflatformproject.board.dto;
 
 import lombok.Data;
 

@@ -1,8 +1,7 @@
-package org.blog.blogflatformproject.board.domain;
+package org.blog.blogflatformproject.board.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.blog.blogflatformproject.blog.domain.Blog;
 
 import java.time.LocalDate;
 

@@ -3,13 +3,20 @@ package org.blog.blogflatformproject.user.service;
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.user.domain.Role;
 import org.blog.blogflatformproject.user.domain.User;
+import org.blog.blogflatformproject.user.dto.FileDTO;
 import org.blog.blogflatformproject.user.repository.RoleRepository;
 import org.blog.blogflatformproject.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +50,30 @@ public class UserService {
             return true;
         }
     }
+    //회원id로 회원정보 불러오기.
     public User findByUserId(Long id){
         return userRepository.findById(id).orElse(null);
+    }
+
+    //파일저장
+    public FileDTO fileUpload(MultipartFile imageFile){
+        if(!imageFile.isEmpty()){
+            try{
+                String uploadDir="/Users/jeonghohyeon/Desktop/blogUserImage";
+                String fileName= UUID.randomUUID().toString();
+                Path filePath = Paths.get(uploadDir+"/"+fileName);
+                Files.copy(imageFile.getInputStream(),filePath);
+
+                FileDTO fileDTO = new FileDTO();
+                fileDTO.setImagePath(filePath.toString());
+                fileDTO.setImageName(imageFile.getOriginalFilename());
+                return fileDTO;
+            }catch (IOException e){
+                e.printStackTrace();
+                return null;
+            }
+        }else{
+            return null;
+        }
     }
 }

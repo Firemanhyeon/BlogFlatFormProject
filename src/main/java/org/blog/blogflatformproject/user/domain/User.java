@@ -44,28 +44,27 @@ public class User {
     @Column(name="email_status")
     private boolean emailStatus;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            inverseJoinColumns = @JoinColumn(name = "roles_id")
     )
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "follower")
+    @OneToMany(mappedBy = "follower" , cascade = CascadeType.ALL)
     private Set<Follow> follows;
 
-    @OneToMany(mappedBy = "following")
+    @OneToMany(mappedBy = "following" , cascade = CascadeType.ALL)
     private Set<Follow> following;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL)
     private Blog blog;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     private Views views;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     private Like like;
-
 
 }

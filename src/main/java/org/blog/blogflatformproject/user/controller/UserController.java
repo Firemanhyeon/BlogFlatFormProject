@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.user.domain.User;
+import org.blog.blogflatformproject.user.dto.FileDTO;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -39,22 +40,10 @@ public class UserController {
                           @RequestParam("imageFile")MultipartFile imageFile,
                           RedirectAttributes redirectAttributes){
         //파일저장
-        if(!imageFile.isEmpty()){
-            try{
-                String uploadDir="/Users/jeonghohyeon/Desktop/blogUserImage";
+        FileDTO dto = userService.fileUpload(imageFile);
+        user.setImagePath(dto.getImagePath());
+        user.setImageName(dto.getImageName());
 
-                String fileName= UUID.randomUUID().toString();
-                Path filePath = Paths.get(uploadDir+"/"+fileName);
-                Files.copy(imageFile.getInputStream(),filePath);
-
-                user.setImagePath(filePath.toString());
-                user.setImageName(imageFile.getOriginalFilename());
-            }catch (IOException e){
-                e.printStackTrace();
-                redirectAttributes.addFlashAttribute("message" , "이미지 업로드에 실패했습니다.");
-                return "redirect:/user/error";
-            }
-        }
         //회원가입
         User user1 = userService.regUser(user);
 
@@ -91,6 +80,7 @@ public class UserController {
     public String goErrorPage(){
         return "/pages/user/error";
     }
+    //로그아웃
     @GetMapping("/logout")
     public String logOut(HttpServletResponse response){
         Cookie cookie = new Cookie("userId" , null);

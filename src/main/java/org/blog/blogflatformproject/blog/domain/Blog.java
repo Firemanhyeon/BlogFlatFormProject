@@ -28,8 +28,8 @@ public class Blog {
     @Column(name = "blog_registration_date")
     private LocalDate blogRegistrationDate;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id" )
     private User user;
 
     @OneToMany(mappedBy = "blog" ,cascade = CascadeType.ALL)

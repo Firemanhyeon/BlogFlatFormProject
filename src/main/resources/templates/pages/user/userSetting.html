@@ -5,10 +5,47 @@
 <head>
     <meta charset="UTF-8">
     <title>설정페이지</title>
+    <link rel="stylesheet" href="/css/setting.css">
+
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>설정페이지입니다</h1>
+    <div class="container" id="container1">
+        <div class="profile-header">
+            <img th:src="${user.imagePath}" alt="Profile Image" class="profile-image">
+            <input type="text" class="profile-name" readonly th:value="${user.name}"/>
+            <a href="#" class="edit-link" id="updateUserName">수정</a>
+        </div>
+        <input  type="file" class="form-control" th:value="이미지업로드"/>
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="detail-title">블로그 제목</span>
+                <input type="text" class="detail-content" readonly th:value="${blog.blogName}">
+                <a href="#" class="edit-link">수정</a>
+            </div>
+            <div class="detail-item">
+                <span class="detail-title">이메일 주소</span>
+                <input type="text" class="detail-content" readonly th:value="${user.email}">
+                <a href="#" class="edit-link">변경</a>
+            </div>
+            <div class="detail-item">
+                <span class="detail-title">이메일 수신 설정</span>
+                <div class="toggle-buttons">
+                    <label for="comment-alert" class="toggle-label">댓글 알림</label>
+                    <label class="switch">
+                        <input type="checkbox" id="comment-alert">
+                        <span class="slider"></span>
+                    </label>
+
+                </div>
+            </div>
+
+            <button class="btn1 btn-primary btn-lg btn-block" id="deleteUser">회원 탈퇴</button>
+        </div>
+    </div>
+
+
+
 </div>
 </body>
 </html>
