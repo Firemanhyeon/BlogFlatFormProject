@@ -11,12 +11,12 @@
 <body>
 <div layout:fragment="content">
     <div class="container" id="container1">
-        <div class="profile-header">
+        <div class="profile-header" id="myInfo">
             <img th:src="${user.imagePath}" alt="Profile Image" class="profile-image">
-            <input type="text" class="profile-name" readonly th:value="${user.name}"/>
+            <input type="text" class="profile-name" readonly id="updateInput" th:value="${user.name}"/>
             <a href="#" class="edit-link" id="updateUserName">수정</a>
         </div>
-        <input  type="file" class="form-control" th:value="이미지업로드"/>
+        <input  type="file" class="form-control" id="imageChange" th:value="이미지업로드"/>
         <div class="profile-details">
             <div class="detail-item">
                 <span class="detail-title">블로그 제목</span>
@@ -45,7 +45,47 @@
     </div>
 
 
+<script>
+    $("#updateUserName").click(function(){
+        $("#updateInput").prop('readonly' , false);
+        $("#updateUserName").remove();
+        const button = $('<button>', {
+            type: 'button',
+            class: 'btn btn-info',
+            id: 'infoSaveBtn',
+            text: '저장'
+        });
+        $("#myInfo").append(button);
 
+        $("#infoSaveBtn").click(function (){
+            let val = $("#updateInput").val();
+            console.log(val+'바꿔야할값');
+            $.ajax({
+                url:"/user/updatename",
+                method:"PUT",
+                data: {
+                    name:val
+                },
+                success:function(result){
+                    console.log(result);
+                },
+                error:function (err){
+                    console.log(err);
+                }
+            })
+        })
+    })
+    $("#imageChange").change(function(){
+        let value = $("#imageChange").val();
+        console.log(value);
+        let arr = value.split("`\`");
+        console.log(arr);
+    })
+
+
+
+
+</script>
 </div>
 </body>
 </html>

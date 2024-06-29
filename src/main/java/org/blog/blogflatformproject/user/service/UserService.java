@@ -76,4 +76,13 @@ public class UserService {
             return null;
         }
     }
+    //회원 이름 수정
+    public User updateName(String name , String logId){
+        User user = findByUserId(Long.parseLong(logId));
+        if(user!=null){
+            user.setName(name);
+            return userRepository.save(user);
+        }
+        return null;
+    }
 }

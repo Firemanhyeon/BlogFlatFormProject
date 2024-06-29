@@ -1,9 +1,14 @@
 package org.blog.blogflatformproject.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.blog.blogflatformproject.user.domain.User;
+import org.blog.blogflatformproject.user.dto.FileDTO;
 import org.blog.blogflatformproject.user.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user")
@@ -30,5 +35,24 @@ public class UserRestController {
         }
         User user = userService.findByUserId(Long.parseLong(logId));
         return user.getImagePath();
+    }
+
+    //이름 수정
+    @PutMapping("/updatename")
+    public ResponseEntity<String> updateName(@RequestParam("name") String name,
+                                     @CookieValue(value="userId" , defaultValue = "") String logId){
+
+        User user = userService.updateName(name , logId);
+        if(user!=null){
+            return ResponseEntity.ok(user.getName());
+        }
+        return ResponseEntity.status(500).body("수정실패");
+    }
+
+    //이미지수정
+    @PostMapping("/updateImg")
+    public ResponseEntity<FileDTO> updateImg(@RequestParam("imageFile") MultipartFile imageFile){
+        System.out.println(imageFile);
+        return null;
     }
 }
