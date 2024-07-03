@@ -19,8 +19,8 @@ public class BlogRestController {
 //    }
 
     @GetMapping("/check")
-    public Long blogCheck(@CookieValue(value="userId" , defaultValue = "") Long userId){
-        Blog blog = blogService.findByUserId(userId);
+    public Long blogCheck(@CookieValue(value="username" , defaultValue = "") String username){
+        Blog blog = blogService.findByUsername(username);
         System.out.println(blog.getBlogId());
         return blog.getBlogId();
     }

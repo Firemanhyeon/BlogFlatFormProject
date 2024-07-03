@@ -20,9 +20,7 @@
                         <div class="card" style="border-radius: 15px;">
                             <div class="card-body p-5">
                                 <h2 class="text-uppercase text-center mb-5">로그인</h2>
-
-                                <form th:action="@{/user/login}" method="post" id="login">
-
+                                <form th:action="@{/login}" method="post" id="login">
                                     <div data-mdb-input-init class="form-outline mb-4">
                                         <input type="text" id="username" class="form-control form-control-lg" name="username"/>
                                         <label class="form-label" for="username">아이디</label>
@@ -42,9 +40,7 @@
 
                                     <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a th:href="@{/user/signInForm}"
                                                                                                             class="fw-bold text-body"><u>아이디 만들기</u></a></p>
-
                                 </form>
-
                             </div>
                         </div>
                     </div>

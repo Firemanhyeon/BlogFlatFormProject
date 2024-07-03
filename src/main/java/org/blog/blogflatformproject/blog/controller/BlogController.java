@@ -11,7 +11,6 @@ import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -25,17 +24,16 @@ public class BlogController {
     private final BoardService boardService;
 
     //블로그이동
-    @GetMapping("/{userId}")
-    public String goBlog(@CookieValue(value="userId" , defaultValue = "") String userId, Model model){
-        if(userId.isEmpty()){
+    @GetMapping("/{username}")
+    public String goBlog(@CookieValue(value="username" , defaultValue = "") String username, Model model){
+        if(username.isEmpty()){
             return "redirect:/user/loginform";
         }
-        Long id = Long.parseLong(userId);
-        Blog blog  = blogService.findByUserId(id);
-        User user = userService.findByUserId(id);
+        Blog blog  = blogService.findByUsername(username);
+        User user = userService.findByUserName(username);
         String userImage = user.getImagePath();
 
-        List<Board> board = boardService.findByUserId(id);
+        List<Board> board = boardService.findByUsername(username);
         if(blog!=null){
             model.addAttribute("boardList" , board);
             model.addAttribute("blog" , blog);
@@ -55,10 +53,10 @@ public class BlogController {
     }
     //블로그생성
     @PostMapping("/blogcreate")
-    public String blogCreate(@ModelAttribute Blog blog , @CookieValue(value="userId" , defaultValue = "") String userId){
+    public String blogCreate(@ModelAttribute Blog blog , @CookieValue(value="username" , defaultValue = "") String username){
 
-        if(blogService.saveBlog(blog , userId)!=null){
-            return "redirect:/blog/"+userId;
+        if(blogService.saveBlog(blog , username)!=null){
+            return "redirect:/blog/"+username;
         }else{
             return "redirect:/blog/blogform";
         }
@@ -66,19 +64,12 @@ public class BlogController {
 
     //유저 설정 페이지 접근제어
     @GetMapping("/settings")
-    public String myBlogSetting(@CookieValue(value="userId" , defaultValue = "") String userId , Model model ){
-        String contextId = UserContext.getUserId();//스레드로컬에서 가져온 id
-        if(contextId.equals("")){
-            return "redirect:/user/loginform";
-        }
+    public String myBlogSetting(@CookieValue(value="username" , defaultValue = "") String username , Model model ){
         //해당유저의 설정페이지로 이동하기
-        User user = userService.findByUserId(Long.parseLong(userId));
-        Blog blog = blogService.findByUserId(Long.parseLong(userId));
+        User user = userService.findByUserName(username);
+        Blog blog = blogService.findByUsername(username);
         model.addAttribute("user" , user);
         model.addAttribute("blog", blog);
         return "pages/user/userSetting";
     }
-
-
-
 }

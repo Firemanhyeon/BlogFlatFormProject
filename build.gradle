@@ -34,10 +34,27 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //시큐리티
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //타임리프에서 스프링시큐리티를 쓸수있게.
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // jwt & json
+    // jwts
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    //gson - json 메시지를 다루기 위한 라이브러리
+    implementation 'com.google.code.gson:gson'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+
     //jsoup
     implementation 'org.jsoup:jsoup:1.14.3'
+
     //타임리프 레이아웃
-    // https://mvnrepository.com/artifact/nz.net.ultraq.thymeleaf/thymeleaf-layout-dialect
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0'
 
 }

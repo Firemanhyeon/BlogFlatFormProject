@@ -26,7 +26,6 @@ public class UserController {
     //로그인창이동
     @GetMapping("/loginform")
     public String logInPage(){
-        System.out.println("로그인폼 요청");
         return "pages/user/loginForm";
     }
     //회원가입창이동
@@ -57,19 +56,23 @@ public class UserController {
 
     }
     //로그인 구현
-    @PostMapping("/login")
-    public String login(@ModelAttribute User user , HttpServletResponse response , RedirectAttributes redirectAttributes){
-        User user1 = userService.login(user);
-        if(user1!=null){
-            Cookie cookie = new Cookie("userId" , user1.getUserId().toString());
-            cookie.setPath("/");
-            response.addCookie(cookie);
-            return "redirect:/blog/"+user1.getUserId();
-        }else{
-            redirectAttributes.addFlashAttribute("message", "로그인실패");
-            return "redirect:/user/error";
-        }
-    }
+//    @PostMapping("/login")
+//    public String login(@ModelAttribute User user , HttpServletResponse response , RedirectAttributes redirectAttributes){
+//        User user1 = userService.login(user);
+//        System.out.println(user1);
+//
+//        if(user1!=null){
+//            System.out.println("로그인완료");
+//            Cookie cookie = new Cookie("userId" , user1.getUserId().toString());
+//            cookie.setPath("/");
+//            response.addCookie(cookie);
+//            return "redirect:/blog/"+user1.getUserId();
+//        }else{
+//            System.out.println("로그인실패");
+//            redirectAttributes.addFlashAttribute("message", "로그인실패");
+//            return "redirect:/user/error";
+//        }
+//    }
     //웰컴페이지이동
     @GetMapping("/welcome")
     public String goWelcomePage(){
@@ -83,7 +86,7 @@ public class UserController {
     //로그아웃
     @GetMapping("/logout")
     public String logOut(HttpServletResponse response){
-        Cookie cookie = new Cookie("userId" , null);
+        Cookie cookie = new Cookie("username" , null);
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

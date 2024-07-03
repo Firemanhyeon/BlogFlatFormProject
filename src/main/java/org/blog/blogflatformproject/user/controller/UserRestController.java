@@ -20,7 +20,7 @@ public class UserRestController {
     //중복체크
     @GetMapping("/duplicateChk")
     public boolean userDuplicateChk(@RequestParam("username") String username){
-        if(userService.findByUserName(username)){
+        if(userService.checkDuplicated(username)){
             return true;
         }else{
             return false;
@@ -29,18 +29,18 @@ public class UserRestController {
 
     //쿠키에서 가져온 사용자아이디에 대한 사용자 정보 가져오기
     @GetMapping("/getUser")
-    public String getUserWithCookie( @CookieValue(value="userId" , defaultValue = "") String logId ){
-        if(logId.equals("")){
+    public String getUserWithCookie( @CookieValue(value="username" , defaultValue = "") String username ){
+        if(username.equals("")){
             return "noImg";
         }
-        User user = userService.findByUserId(Long.parseLong(logId));
+        User user = userService.findByUserName(username);
         return user.getImagePath();
     }
 
     //이름 수정
     @PutMapping("/updatename")
     public ResponseEntity<String> updateName(@RequestParam("name") String name,
-                                     @CookieValue(value="userId" , defaultValue = "") String logId){
+                                     @CookieValue(value="username" , defaultValue = "") String logId){
 
         User user = userService.updateName(name , logId);
         if(user!=null){

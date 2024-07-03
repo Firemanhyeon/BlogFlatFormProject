@@ -16,13 +16,13 @@ public class BlogService {
     private final UserRepository userRepository;
 
     //해당유저의 블로그
-    public Blog findByUserId(Long id){
-        return blogRepository.findByUser_UserId(id);
+    public Blog findByUsername(String username){
+        return blogRepository.findByUser_Username(username);
     }
 
     //블로그생성
-    public Blog saveBlog(Blog blog , String userId){
-        User user = userRepository.findById(Long.parseLong(userId)).orElse(null);
+    public Blog saveBlog(Blog blog , String username){
+        User user = userRepository.findByUsername(username);
         blog.setUser(user);
         blog.setBlogRegistrationDate(LocalDate.now());
         return blogRepository.save(blog);

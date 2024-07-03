@@ -41,15 +41,15 @@ public class BoardController {
     //글 등록
     @PostMapping("/addboard")
     public String addBoard(@ModelAttribute Board board,
-                           @CookieValue(value="userId" , defaultValue = "") String logId,
+                           @CookieValue(value="username" , defaultValue = "") String username,
                            @RequestParam("tagName") String tags){
         //태그 서비스호출 (이미 있는 태그면 그냥넣고 없는태그면 새로생성 후 Set안에넣기)
         Set<Tag> tagSet = tagService.addOrFind(tags);
         System.out.println("addboard탓음");
         //글등록
-        Board board1 = boardService.addBoard(board,logId,tagSet);
+        Board board1 = boardService.addBoard(board,username,tagSet);
         if(board1.getBoardId()!=null){
-            return "redirect:/blog/"+logId;
+            return "redirect:/blog/"+username;
         }else{
             return "redirect:/board/boardform";
         }
@@ -99,10 +99,10 @@ public class BoardController {
     //게시글 수정창 이동
     @GetMapping("/update/{boardId}")
     public String getBoardUpdate(@PathVariable("boardId") Long boardId ,
-                                @CookieValue(value="userId" , defaultValue = "") Long logId ,
+                                @CookieValue(value="username" , defaultValue = "") String username ,
                                  Model model){
 
-        Blog blog = blogService.findByUserId(logId);
+        Blog blog = blogService.findByUsername(username);
         Set<Board> set = blog.getBoard();
         for(Board post : set){
             if(Objects.equals(post.getBoardId(), boardId)){

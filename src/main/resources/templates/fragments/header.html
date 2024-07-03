@@ -47,7 +47,7 @@
             let cookies = document.cookie.split(";");
             let loginForm = $("#loginForm");
             let blogForm = $("#blogForm");
-            if(cookies.some(cookie => cookie.includes('userId'))){
+            if(cookies.some(cookie => cookie.includes('username'))){
                 blogForm.show();
                 loginForm.hide();
             } else {

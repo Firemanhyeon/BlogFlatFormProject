@@ -29,8 +29,8 @@ public class BoardService {
         }
 
         //게시글생성
-        public Board addBoard(Board board , String userId , Set<Tag> tags) {
-            Blog blog = blogRepository.findByUser_UserId(Long.parseLong(userId));
+        public Board addBoard(Board board , String username , Set<Tag> tags) {
+            Blog blog = blogRepository.findByUser_Username(username);
             board.setTags(tags);
             board.setBlog(blog);
             board.setCreateAt(LocalDate.now());
@@ -58,8 +58,8 @@ public class BoardService {
         }
 
         //해당유저의 글찾기
-        public List<Board> findByUserId(Long userId){
-            Blog blog = blogRepository.findByUser_UserId(userId);
+        public List<Board> findByUsername(String username){
+            Blog blog = blogRepository.findByUser_Username(username);
             return boardRepository.findByBlog(blog);
         }
 

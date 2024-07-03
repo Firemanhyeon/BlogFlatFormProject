@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BlogRepository extends JpaRepository<Blog,Long> {
-    Blog findByUser_UserId(Long userId);
+    Blog findByUser_Username(String user_username);
 }

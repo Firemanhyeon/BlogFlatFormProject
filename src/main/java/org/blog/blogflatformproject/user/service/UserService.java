@@ -6,6 +6,7 @@ import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.dto.FileDTO;
 import org.blog.blogflatformproject.user.repository.RoleRepository;
 import org.blog.blogflatformproject.user.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,27 +24,31 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     //로그인
     public User login(User user){
-        User user1 = userRepository.findByUsernameAndPassword(user.getUsername(),user.getPassword());
-
-        return user1;
+        System.out.println("서비스호출");
+        User foundUser = userRepository.findByUsername(user.getUsername());
+        if(foundUser != null && passwordEncoder.matches(user.getPassword(), foundUser.getPassword())){
+            return foundUser;
+        } else {
+            return null;
+        }
     }
     //회원가입
     public User regUser(User user) {
-        Role userRole = roleRepository.findByRoleName("일반사용자");
+        Role userRole = roleRepository.findByRoleName("USER");
         // 사용자에게 역할 할당
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
         user.setRoles(roles);
         user.setRegistrationDate(LocalDate.now());
-        System.out.println(user.getRegistrationDate());
-        User user1 = userRepository.save(user);
-        return user1;
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
     //아이디중복체크
-    public boolean findByUserName(String username){
+    public boolean checkDuplicated(String username){
         if(userRepository.findByUsername(username)==null){
             return false;
         }else{
@@ -51,9 +56,10 @@ public class UserService {
         }
     }
     //회원id로 회원정보 불러오기.
-    public User findByUserId(Long id){
-        return userRepository.findById(id).orElse(null);
+    public User findByUserName(String username){
+        return userRepository.findByUsername(username);
     }
+    //
 
     //파일저장
     public FileDTO fileUpload(MultipartFile imageFile){
@@ -77,8 +83,8 @@ public class UserService {
         }
     }
     //회원 이름 수정
-    public User updateName(String name , String logId){
-        User user = findByUserId(Long.parseLong(logId));
+    public User updateName(String name , String username){
+        User user = findByUserName(username);
         if(user!=null){
             user.setName(name);
             return userRepository.save(user);
