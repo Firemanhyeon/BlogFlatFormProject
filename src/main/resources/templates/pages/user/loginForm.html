@@ -34,7 +34,7 @@
 
 
                                     <div class="d-flex justify-content-center">
-                                        <button  type="submit" data-mdb-button-init
+                                        <button  type="button" data-mdb-button-init
                                                  data-mdb-ripple-init class="btn btn-success btn-block btn-lg gradient-custom-4 text-body" id="loginBtn">로그인</button>
                                     </div>
 
@@ -55,12 +55,28 @@
                 let id = $("#username").val();
                 let pwd = $("#password").val();
                 if(id!='' && pwd!=''){
-                    $("#login").submit();
+                    $.ajax({
+                        url:"/api/user/login",
+                        method:"POST",
+                        contentType: 'application/json',
+                        data:JSON.stringify({
+                            username:id,
+                            password:pwd
+                        }),
+                        success:function(result){
+                            console.log(result);
+                        },
+                        error:function (err){
+                            console.log(err)
+                        }
+                    })
                 }else{
                     alert('빈값을 확인하세요');
                     return;
                 }
             })
+
+
 
         })
 

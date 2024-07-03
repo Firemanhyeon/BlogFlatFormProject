@@ -28,4 +28,8 @@ spring:
     suffix: .html
     enabled: true
 
+jwt:
+  secretKey: 12345678901234567890123456789012
+  refreshKey: 12345678901234567890123456789012
+
 
