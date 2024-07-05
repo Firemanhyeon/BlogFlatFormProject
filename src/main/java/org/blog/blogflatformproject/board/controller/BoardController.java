@@ -7,8 +7,8 @@ import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
 import org.blog.blogflatformproject.board.domain.Tag;
-import org.blog.blogflatformproject.board.service.BoardService;
-import org.blog.blogflatformproject.board.service.TagService;
+import org.blog.blogflatformproject.board.repository.service.BoardService;
+import org.blog.blogflatformproject.board.repository.service.TagService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,7 +45,6 @@ public class BoardController {
                            @RequestParam("tagName") String tags){
         //태그 서비스호출 (이미 있는 태그면 그냥넣고 없는태그면 새로생성 후 Set안에넣기)
         Set<Tag> tagSet = tagService.addOrFind(tags);
-        System.out.println("addboard탓음");
         //글등록
         Board board1 = boardService.addBoard(board,username,tagSet);
         if(board1.getBoardId()!=null){

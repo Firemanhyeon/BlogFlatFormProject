@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.service.BoardService;
-import org.blog.blogflatformproject.user.domain.UserContext;
+import org.blog.blogflatformproject.board.repository.service.BoardService;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -43,9 +42,7 @@ public class BlogController {
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
             return "pages/blog/blogform";
         }
-
     }
-
     //블로그생성창으로 이동
     @GetMapping("/blogform")
     public String goBlogForm(){
@@ -62,10 +59,11 @@ public class BlogController {
         }
     }
 
-    //유저 설정 페이지 접근제어
+    //유저 설정 페이지
     @GetMapping("/settings")
     public String myBlogSetting(@CookieValue(value="username" , defaultValue = "") String username , Model model ){
         //해당유저의 설정페이지로 이동하기
+        System.out.println("설정페이지이동");
         User user = userService.findByUserName(username);
         Blog blog = blogService.findByUsername(username);
         model.addAttribute("user" , user);

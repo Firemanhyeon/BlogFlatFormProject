@@ -59,9 +59,8 @@
 
         $("#infoSaveBtn").click(function (){
             let val = $("#updateInput").val();
-            console.log(val+'바꿔야할값');
             $.ajax({
-                url:"/user/updatename",
+                url:"/api/user/updatename",
                 method:"PUT",
                 data: {
                     name:val
@@ -76,13 +75,21 @@
         })
     })
     $("#imageChange").change(function(){
-        let value = $("#imageChange").val();
+        let value = $(".profile-image").attr("src");
+        $.ajax({
+            url: "/api/user/updateImg",
+            method: "POST",
+            data: {
+                imagePath: value
+            },
+            success:function(result){
+                console.log(result);
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
         console.log(value);
-        let arr = value.split("`\`");
-
-        for(let i=0;i<arr.length;i++){
-            console.log(arr[i]);
-        }
 
     })
 

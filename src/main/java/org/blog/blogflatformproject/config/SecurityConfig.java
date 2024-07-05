@@ -31,19 +31,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenizer jwtTokenizer, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
                 .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/", "/user/loginform", "/user/signInForm", "/board/boardInfo/**", "/blog/**", "/user/duplicateChk",
+                        .requestMatchers("/", "/user/loginform", "/user/signInForm", "/board/boardInfo/**", "/blog/**", "/api/user/duplicateChk",
                                 "/user/userreg", "/user/login","/login", "/user/welcome", "/css/**", "/js/**","/Users/jeonghohyeon/Desktop/blogUserImage/**"
-                                ,"/user/getUser","/api/user/login").permitAll()
-                        .requestMatchers("/board/addboard" , "/blog//settings").hasRole("USER")
+                                ,"/api/user/login","/api/user/getUser","/api/user/updatename","/user/logout").permitAll()
                         .anyRequest()
                         .authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenizer), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form-> form.disable())
-                .logout(logout -> logout
-                        .logoutUrl("/user/logout")
-                        .logoutSuccessUrl("/")
-                )
+//                .logout(logout -> logout
+//                        .logoutUrl("/user/logout")
+//                        .logoutSuccessUrl("/")
+//                )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

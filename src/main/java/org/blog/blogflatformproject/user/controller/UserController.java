@@ -78,19 +78,34 @@ public class UserController {
     public String goWelcomePage(){
         return "/pages/user/welcome";
     }
+
     //에러페이지이동
     @GetMapping("/error")
     public String goErrorPage(){
         return "/pages/user/error";
     }
+
     //로그아웃
     @GetMapping("/logout")
     public String logOut(HttpServletResponse response){
+        System.out.println("로그아웃");
         Cookie cookie = new Cookie("username" , null);
         cookie.setMaxAge(0);
-        cookie.setHttpOnly(true);
         cookie.setPath("/");
+
+        Cookie accessToken = new Cookie("accessToken" , null);
+        accessToken.setMaxAge(0);
+        accessToken.setPath("/");
+
+        Cookie refreshToken = new Cookie("refreshToken",null);
+        refreshToken.setMaxAge(0);
+        refreshToken.setPath("/");
+
+        response.addCookie(refreshToken);
         response.addCookie(cookie);
+        response.addCookie(accessToken);
+
+
 
         return "redirect:/";
     }

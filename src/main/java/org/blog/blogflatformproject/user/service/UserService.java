@@ -60,7 +60,16 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
     //
-
+    //파일 삭제
+    public boolean fileDelete(String imagePath){
+        Path filePath = Paths.get(imagePath);
+        try{
+           return Files.deleteIfExists(filePath);
+        }catch(IOException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
     //파일저장
     public FileDTO fileUpload(MultipartFile imageFile){
         if(!imageFile.isEmpty()){

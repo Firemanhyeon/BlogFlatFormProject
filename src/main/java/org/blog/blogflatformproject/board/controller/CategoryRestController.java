@@ -2,7 +2,7 @@ package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.board.domain.Category;
-import org.blog.blogflatformproject.board.service.CategoryService;
+import org.blog.blogflatformproject.board.repository.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

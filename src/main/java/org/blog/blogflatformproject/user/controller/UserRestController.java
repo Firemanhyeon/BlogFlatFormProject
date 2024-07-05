@@ -1,6 +1,7 @@
 package org.blog.blogflatformproject.user.controller;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ public class UserRestController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid UserLoginDto loginDto , BindingResult bindingResult , HttpServletResponse httpServletResponse){
+    public ResponseEntity login(@RequestBody @Valid UserLoginDto loginDto , BindingResult bindingResult ,HttpServletRequest request ,  HttpServletResponse response){
         //username , password가  null일때 혹은 정해진 형식에 맞지않을때
         System.out.println("로그인탔어요");
         if(bindingResult.hasErrors()){
@@ -43,6 +45,9 @@ public class UserRestController {
 
         //해당 username으로 유저정보 가져와서 아이디비밀번호 맞는지 체크 맞지않다면 return
         User user = userService.findByUserName(loginDto.getUsername());
+        if(user==null){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
         if(!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())){
             return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
@@ -50,45 +55,93 @@ public class UserRestController {
 
         List<String> roles = user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()); //Role타입의 set에서 role의 이름만 들어있는 list가 필요함
 
-        //액세스토큰과 리프레시토큰 생성
-        String accessToken = jwtTokenizer.createAccessToken(user.getUserId(),user.getEmail(),user.getName(),user.getUsername(),roles);
-        String refreshToken = jwtTokenizer.createRefreshToken(user.getUserId(),user.getEmail(),user.getName(),user.getUsername(),roles);
+        //액세스토큰 확인. 있을 시 해당 액세스토큰에 대한 유저정보 반환.
+        String chkAccessToken = getCookieValue(request, "accessToken");
+        if(chkAccessToken != null && jwtTokenizer.validateAccessToken(chkAccessToken)){
+            System.out.println("액세스토큰이 있어요");
+            UserLoginResponseDto loginResponse = createLoginResponse(user,chkAccessToken,null);
+            return new ResponseEntity(loginResponse,HttpStatus.OK);
+        }else{
+            //없을 시 리프레시토큰 비교
+            System.out.println("액세스토큰이 없어요");
+            String refreshToken = getCookieValue(request,"refreshToken");
+            //리프레시토큰이 있는경우
+            //새로운 액세스 토큰을 생성하고 액세스토큰과 리프레시토큰을 반환.
+            if(refreshToken!=null && jwtTokenizer.validateRefreshToken(refreshToken)){
+                System.out.println("리프레시토큰이 있어요");
+                chkAccessToken = jwtTokenizer.createAccessToken(user.getUserId(),user.getEmail(),user.getName(),user.getUsername(),roles);
+                UserLoginResponseDto loginResponse = createLoginResponse(user, chkAccessToken, refreshToken);
+                addCookies(response , chkAccessToken , refreshToken,user);
+                return new ResponseEntity(loginResponse , HttpStatus.OK);
+            }else{
+                System.out.println("리프레시토큰이 없어요");
+                //리프레시토큰이 없는경우
 
-        //리프레시토큰 같은 경우엔 디비에 넣어줘야하니까 객체생성해서 넣어줌.
-        RefreshToken refreshTokenEntity = new RefreshToken();
-        refreshTokenEntity.setValue(refreshToken);
-        refreshTokenEntity.setUserId(user.getUserId());
-        refreshTokenService.addRefreshToken(refreshTokenEntity);
+                //리프레시토큰과 액세스토큰 생성.
+                refreshToken = jwtTokenizer.createRefreshToken(user.getUserId(), user.getEmail(), user.getName(), user.getUsername(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()));
+                chkAccessToken = jwtTokenizer.createAccessToken(user.getUserId(), user.getEmail(), user.getName(), user.getUsername(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()));
 
-        //응답을 위한 dto에 로그인정보 담아주기
-        UserLoginResponseDto loginResponse = UserLoginResponseDto.builder()
+                //데이터베이스에 넣을 객체 생성
+                RefreshToken refreshTokenEntity = new RefreshToken();
+                refreshTokenEntity.setValue(refreshToken);
+                refreshTokenEntity.setUserId(user.getUserId());
+                //기존에 저장되어있던 리프레시토큰 삭제
+                refreshTokenService.deleteRefreshToken(user.getUserId());
+                //리프레시토큰 생성
+                refreshTokenService.addRefreshToken(refreshTokenEntity);
+
+                UserLoginResponseDto loginResponse = createLoginResponse(user,chkAccessToken,refreshToken);
+                addCookies(response , chkAccessToken,refreshToken,user);
+
+                return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+            }
+        }
+    }
+
+    //쿠키 추가 메서드
+    private void addCookies(HttpServletResponse response, String accessToken, String refreshToken,User user) {
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.ACCESS_TOKEN_EXPIRE_COUNT / 1000));
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.REFRESH_TOKEN_EXPIRE_COUT / 1000));
+
+
+        Cookie username = new Cookie("username",user.getUsername());
+        username.setPath("/");
+        username.setMaxAge(Math.toIntExact(JwtTokenizer.ACCESS_TOKEN_EXPIRE_COUNT / 1000));
+
+        response.addCookie(username);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+    }
+
+// 로그인응답 메서드
+    private UserLoginResponseDto createLoginResponse(User user, String accessToken, String refreshToken) {
+        return UserLoginResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getUserId())
                 .name(user.getName())
                 .build();
-
-        //쿠키에 액세스토큰 담아주기
-        Cookie accessTokenCookie = new Cookie("accessToken",accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.ACCESS_TOKEN_EXPIRE_COUNT/1000));//30분 30분이 다되면 refresh토큰 가지고 다시 요청해서 맞으면 새로운 accesstoken 발급해준다.
-
-        //쿠키에 리프레시토큰 담아주기
-        Cookie refreshTokenCookie = new Cookie("refreshToken" , refreshToken);
-        refreshTokenCookie.setHttpOnly(true);//보안. (쿠키값을 js곳에서 접근할 수 없다.)
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.REFRESH_TOKEN_EXPIRE_COUT/1000));//유지시간. 7일 / 쿠키의 유지시간은 초단위인데 JWT의 시간단위는 밀리세컨드라 나눠줌.
-
-        //서블릿응답에 보내기
-        httpServletResponse.addCookie(accessTokenCookie);
-        httpServletResponse.addCookie(refreshTokenCookie);
-
-        //엔티티에 로그인정보담아서 return
-        return new ResponseEntity(loginResponse , HttpStatus.OK);
     }
 
-
+    //쿠키값 가져오기
+    private String getCookieValue(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(name)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
 
     //중복체크
     @GetMapping("/duplicateChk")
@@ -124,8 +177,12 @@ public class UserRestController {
 
     //이미지수정
     @PostMapping("/updateImg")
-    public ResponseEntity<FileDTO> updateImg(@RequestParam("imageFile") MultipartFile imageFile){
-        System.out.println(imageFile);
+    public ResponseEntity<FileDTO> updateImg(@RequestParam("imagePath") String imagePath){
+        if(userService.fileDelete(imagePath)){
+
+        }
         return null;
     }
+
+
 }

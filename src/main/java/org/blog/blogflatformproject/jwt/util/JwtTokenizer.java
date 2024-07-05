@@ -1,6 +1,7 @@
 package org.blog.blogflatformproject.jwt.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class JwtTokenizer {
     private final byte[] accessSecret;
     private final byte[] refreshSecret;
 
-    public static Long ACCESS_TOKEN_EXPIRE_COUNT = 1*60*1000L;//30분 엑세스토큰의 유지시간
+    public static Long ACCESS_TOKEN_EXPIRE_COUNT = 2*60*60*1000L;//30분 엑세스토큰의 유지시간
     public static Long REFRESH_TOKEN_EXPIRE_COUT = 7*24*60*60*1000L;//7일
 
     public JwtTokenizer(@Value("${jwt.secretKey}") String accessSecret, @Value("${jwt.refreshKey}") String refreshSecret){
@@ -75,5 +76,29 @@ public class JwtTokenizer {
 
     public Claims parseRefreshToken(String refreshToken) {
         return parseToken(refreshToken, refreshSecret);
+    }
+
+
+    // Token 유효성 검증
+    public boolean validateToken(String token, byte[] secretKey) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey(secretKey))
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.error("Token expired", e);
+        } catch (Exception e) {
+            log.error("Token invalid", e);
+        }
+        return false;
+    }
+
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, accessSecret);
+    }
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refreshSecret);
     }
 }

@@ -19,11 +19,13 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
     @Transactional
-    public void deleteRefreshToken(String refreshToken){
-        refreshTokenRepository.findByValue(refreshToken).ifPresent(refreshTokenRepository::delete);
+    public void deleteRefreshToken(Long userId){
+        refreshTokenRepository.deleteByUserId(userId);
     }
     @Transactional(readOnly = true)
     public Optional<RefreshToken> findRefreshToken(String refreshToken){
         return refreshTokenRepository.findByValue(refreshToken);
     }
+
+
 }

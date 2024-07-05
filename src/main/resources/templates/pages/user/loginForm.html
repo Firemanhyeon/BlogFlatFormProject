@@ -64,10 +64,15 @@
                             password:pwd
                         }),
                         success:function(result){
-                            console.log(result);
+                            if(result.accessToken!=null){
+                                window.location.href="/blog/"+result.userId;
+                            }
                         },
                         error:function (err){
-                            console.log(err)
+                            if(err.status===401){
+                                alert("비밀번호가 올바르지 않습니다.")
+                            }
+                            console.log(err.status);
                         }
                     })
                 }else{

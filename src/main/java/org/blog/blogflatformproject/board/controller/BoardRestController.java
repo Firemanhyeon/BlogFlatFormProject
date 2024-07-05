@@ -2,7 +2,7 @@ package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.repository.service.BoardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
