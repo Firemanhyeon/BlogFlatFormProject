@@ -165,9 +165,7 @@ public class UserRestController {
 
     //이름 수정
     @PutMapping("/updatename")
-    public ResponseEntity<String> updateName(@RequestParam("name") String name,
-                                     @CookieValue(value="username" , defaultValue = "") String logId){
-
+    public ResponseEntity<String> updateName(@RequestParam("name") String name, @CookieValue(value="username" , defaultValue = "") String logId){
         User user = userService.updateName(name , logId);
         if(user!=null){
             return ResponseEntity.ok(user.getName());
@@ -177,11 +175,29 @@ public class UserRestController {
 
     //이미지수정
     @PostMapping("/updateImg")
-    public ResponseEntity<FileDTO> updateImg(@RequestParam("imagePath") String imagePath){
-        if(userService.fileDelete(imagePath)){
-
+    public ResponseEntity<String> updateImg(@RequestParam("imageFile") MultipartFile imageFile,
+                                             @RequestParam("beforeImg")String beforeImg,
+                                            @CookieValue(value="username" , defaultValue = "") String username){
+        User user = userService.findByImgPath(beforeImg);
+        //기존 프로필사진이 있을경우 로컬삭제
+        if(user!=null){
+            //기존 유저 프로필사진삭제
+            userService.fileDelete(beforeImg);
+        }else{
+            user = userService.findByUserName(username);
         }
-        return null;
+        //프로필사진 파일저장
+        FileDTO file = userService.fileUpload(imageFile);
+        //유저정보 파일경로 user테이블에서 수정
+
+        if(file!=null){
+            user.setImageName(file.getImageName());
+            user.setImagePath(file.getImagePath());
+            User updateUser = userService.saveUser(user);
+            return new ResponseEntity<>(updateUser.getImagePath(),HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
 

@@ -38,10 +38,13 @@ public class UserController {
     public String userreg(@ModelAttribute User user ,
                           @RequestParam("imageFile")MultipartFile imageFile,
                           RedirectAttributes redirectAttributes){
-        //파일저장
-        FileDTO dto = userService.fileUpload(imageFile);
-        user.setImagePath(dto.getImagePath());
-        user.setImageName(dto.getImageName());
+        if(!imageFile.isEmpty()){
+            //파일저장
+            FileDTO dto = userService.fileUpload(imageFile);
+            user.setImagePath(dto.getImagePath());
+            user.setImageName(dto.getImageName());
+        }
+
 
         //회원가입
         User user1 = userService.regUser(user);

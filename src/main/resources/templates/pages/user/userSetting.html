@@ -46,51 +46,70 @@
 
 
 <script>
-    $("#updateUserName").click(function(){
-        $("#updateInput").prop('readonly' , false);
-        $("#updateUserName").remove();
-        const button = $('<button>', {
-            type: 'button',
-            class: 'btn btn-info',
-            id: 'infoSaveBtn',
-            text: '저장'
-        });
-        $("#myInfo").append(button);
+    function bindEditButton() {
+        $("#updateUserName").click(function(){
+            $("#updateInput").prop('readonly', false);
+            $(this).remove();
+            const button = $('<button>', {
+                type: 'button',
+                class: 'btn btn-info',
+                id: 'infoSaveBtn',
+                text: '저장'
+            });
+            $("#myInfo").append(button);
 
-        $("#infoSaveBtn").click(function (){
-            let val = $("#updateInput").val();
-            $.ajax({
-                url:"/api/user/updatename",
-                method:"PUT",
-                data: {
-                    name:val
-                },
-                success:function(result){
-                    console.log(result);
-                },
-                error:function (err){
-                    console.log(err);
-                }
-            })
-        })
-    })
+            $("#infoSaveBtn").click(function (){
+                let val = $("#updateInput").val();
+                $.ajax({
+                    url:"/api/user/updatename",
+                    method:"PUT",
+                    data: {
+                        name: val
+                    },
+                    success:function(result){
+                        console.log(result);
+                        $("#updateInput").prop('readonly', true);
+                        $("#infoSaveBtn").remove();
+                        const editLink = $('<a>', {
+                            href: '#',
+                            class: 'edit-link',
+                            id: 'updateUserName',
+                            text: '수정'
+                        });
+                        $("#myInfo").append(editLink);
+                        bindEditButton(); // Re-bind the edit button
+                    },
+                    error:function (err){
+                        console.log(err);
+                    }
+                });
+            });
+        });
+    }
+
+    bindEditButton();
+
     $("#imageChange").change(function(){
-        let value = $(".profile-image").attr("src");
+        let beforeImg = $(".profile-image").attr("src");//현재파일경로
+        let file =$("#imageChange")[0].files[0];
+        console.log(file);
+        let nowFile = new FormData();
+        nowFile.append("imageFile" , file);
+        nowFile.append("beforeImg" , beforeImg);
         $.ajax({
             url: "/api/user/updateImg",
             method: "POST",
-            data: {
-                imagePath: value
-            },
+            data: nowFile,
+            contentType: false,
+            processData: false,
             success:function(result){
-                console.log(result);
+                $(".profile-image").attr("src",result);
+                $("#imageChange").val('');
             },
             error:function(err){
-                console.log(err);
+                console.log('2222'+err);
             }
         })
-        console.log(value);
-
     })
 
 

@@ -100,4 +100,12 @@ public class UserService {
         }
         return null;
     }
+    //imagePath 로 회원정보 불러오기
+    public User findByImgPath(String imgPath){
+        return userRepository.findByImagePath(imgPath);
+    }
+    //회원정보저장,수정
+    public User saveUser(User user){
+        return userRepository.save(user);
+    }
 }
