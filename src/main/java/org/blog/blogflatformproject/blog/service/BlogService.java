@@ -27,5 +27,9 @@ public class BlogService {
         blog.setBlogRegistrationDate(LocalDate.now());
         return blogRepository.save(blog);
     }
+    //블로그이름수정
+    public Blog updateBlogName(Blog blog){
+        return blogRepository.save(blog);
+    }
 
 }

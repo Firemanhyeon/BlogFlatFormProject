@@ -18,22 +18,22 @@
         </div>
         <input  type="file" class="form-control" id="imageChange" th:value="이미지업로드"/>
         <div class="profile-details">
-            <div class="detail-item">
+            <div class="detail-item" id="myBlogInfo">
                 <span class="detail-title">블로그 제목</span>
-                <input type="text" class="detail-content" readonly th:value="${blog.blogName}">
-                <a href="#" class="edit-link">수정</a>
+                <input type="text" class="detail-content" readonly id="updateInputBlogName" th:value="${blog.blogName}">
+                <a href="#" class="edit-link" id="updateBlogName">수정</a>
             </div>
-            <div class="detail-item">
+            <div class="detail-item" id="myEmailInfo">
                 <span class="detail-title">이메일 주소</span>
-                <input type="text" class="detail-content" readonly th:value="${user.email}">
-                <a href="#" class="edit-link">변경</a>
+                <input type="text" class="detail-content" readonly id="updateInputEmail" th:value="${user.email}">
+                <a href="#" class="edit-link" id="updateEmail">수정</a>
             </div>
             <div class="detail-item">
                 <span class="detail-title">이메일 수신 설정</span>
                 <div class="toggle-buttons">
-                    <label for="comment-alert" class="toggle-label">댓글 알림</label>
+                    <label for="emailStatusInput" class="toggle-label">이메일 수신 여부</label>
                     <label class="switch">
-                        <input type="checkbox" id="comment-alert">
+                        <input type="checkbox" th:checked="${user.emailStatus}" id="emailStatusInput">
                         <span class="slider"></span>
                     </label>
 
@@ -67,7 +67,7 @@
                         name: val
                     },
                     success:function(result){
-                        console.log(result);
+
                         $("#updateInput").prop('readonly', true);
                         $("#infoSaveBtn").remove();
                         const editLink = $('<a>', {
@@ -87,7 +87,111 @@
         });
     }
 
+    function updateBlogName(){
+        $('#updateBlogName').click(function(){
+            $('#updateInputBlogName').prop('readonly',false);
+            $(this).remove();
+            const button = $('<button>', {
+                type: 'button',
+                class: 'btn btn-info',
+                id: 'infoNameSaveBtn',
+                text: '저장'
+            });
+            $("#myBlogInfo").append(button);
+            $('#infoNameSaveBtn').click(function(){
+                let value = $('#updateInputBlogName').val();
+                $.ajax({
+                    url:'/blog/updateBlogName',
+                    method:'PUT',
+                    data:{
+                        blogName:value
+                    },
+                    success:function(result){
+
+                        $('#updateInputBlogName').prop('readonly',true);
+                        $('#infoNameSaveBtn').remove();
+                        const editLink = $('<a>', {
+                            href: '#',
+                            class: 'edit-link',
+                            id: 'updateBlogName',
+                            text: '수정'
+                        });
+                        $("#myBlogInfo").append(editLink);
+                        updateBlogName();
+                    },
+                    error:function(err){
+                        console.log(err);
+                    }
+
+                })
+            })
+        })
+    }
+    function updateEmail(){
+        $('#updateEmail').click(function(){
+            $('#updateInputEmail').prop('readonly',false);
+            $(this).remove();
+            const button = $('<button>', {
+                type: 'button',
+                class: 'btn btn-info',
+                id: 'infoEmailSaveBtn',
+                text: '저장'
+            });
+            $('#myEmailInfo').append(button);
+            $('#infoEmailSaveBtn').click(function(){
+                let val = $('#updateInputEmail').val();
+                $.ajax({
+                    url:'/api/user/updateEmail',
+                    method:'PUT',
+                    data:{
+                        email:val
+                    },
+                    success:function(result){
+
+                        $('#updateInputEmail').prop('readonly',true);
+                        $('#infoEmailSaveBtn').remove();
+                        const editLink = $('<a>', {
+                            href: '#',
+                            class: 'edit-link',
+                            id: 'updateEmail',
+                            text: '수정'
+                        });
+                        $("#myEmailInfo").append(editLink);
+                        updateEmail();
+                    },
+                    error:function(err){
+                        console.log(err);
+                    }
+                })
+            })
+        })
+    }
     bindEditButton();
+    updateBlogName();
+    updateEmail();
+    $("#emailStatusInput").click(function(){
+        let check = $('#emailStatusInput').is(":checked");
+        $.ajax({
+            url:'/api/user/updateEmailStatus',
+            method:'PUT',
+            data:{
+                emailStatus:check
+            },
+            success:function(result){
+
+                $('#emailStatusInput').prop('checked' , result);
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+    })
+    $('#deleteUser').click(function(){
+        let chk = confirm('정말로 삭제하시겠습니까?');
+        if(chk){
+
+        }
+    })
 
     $("#imageChange").change(function(){
         let beforeImg = $(".profile-image").attr("src");//현재파일경로

@@ -200,5 +200,32 @@ public class UserRestController {
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
+    @PutMapping("/updateEmail")
+    public ResponseEntity<String> updateUserEmail(@RequestParam("email") String email,
+                                                  @CookieValue(value = "username" ,  defaultValue = "") String username){
+        User user = userService.findByUserName(username);
+        if(user!=null){
+            user.setEmail(email);
+            User updateUser = userService.saveUser(user);
+            return new ResponseEntity(updateUser.getEmail(),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+
+    }
+
+
+    @PutMapping("/updateEmailStatus")
+    public ResponseEntity<String> updateUserEmailStatus(@RequestParam("emailStatus") boolean emailStatus,
+                                                        @CookieValue(value = "username", defaultValue = "") String username){
+        System.out.println("1111");
+        User user = userService.findByUserName(username);
+        if(user!=null){
+            user.setEmailStatus(emailStatus);
+            User updateUser = userService.saveUser(user);
+            return new ResponseEntity(updateUser.isEmailStatus(),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+    }
+
 
 }
