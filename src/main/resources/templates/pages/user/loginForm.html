@@ -64,8 +64,9 @@
                             password:pwd
                         }),
                         success:function(result){
+                            console.log(result);
                             if(result.accessToken!=null){
-                                window.location.href="/blog/"+result.userId;
+                                window.location.href="/blog/"+result.userName;
                             }
                         },
                         error:function (err){

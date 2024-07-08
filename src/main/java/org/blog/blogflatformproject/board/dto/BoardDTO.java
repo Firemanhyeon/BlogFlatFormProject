@@ -14,4 +14,7 @@ public class BoardDTO {
     private String blogName;
     private Long blogId;
     private LocalDate createAt;
+
+    private String userImgPath;
+    private String userName;
 }

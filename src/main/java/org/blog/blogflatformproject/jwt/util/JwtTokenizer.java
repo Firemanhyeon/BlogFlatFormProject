@@ -58,9 +58,11 @@ public class JwtTokenizer {
 
     public Long getUserIdFromToken(String token){
         String[] tokenArr = token.split(" ");
-        token = tokenArr[1];
-        Claims claims = parseToken(token,accessSecret);
-        return Long.valueOf((Integer)claims.get("userId"));
+        if (tokenArr.length > 1) {
+            token = tokenArr[1];
+        }
+        Claims claims = parseToken(token, accessSecret);
+        return Long.valueOf((Integer) claims.get("userId"));
     }
 
     public Claims parseToken(String token, byte[] secretKey){

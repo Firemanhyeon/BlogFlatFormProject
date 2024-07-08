@@ -26,9 +26,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             handleRestResponse(request,response, exception);
         }else{
             System.out.println("page");
-            handleRestResponse(request,response, exception);
+            handlePageResponse(request,response, exception);
         }
     }
+
     //페이지로 요청이 들어왔을 때 인증되지 않은 사용자라면 무조건 /loginform으로 리디렉션 시키겠다.
     private void handlePageResponse(HttpServletRequest request, HttpServletResponse response, String exception) throws IOException {
         log.error("Page Request - Commence Get Exception : {}", exception);

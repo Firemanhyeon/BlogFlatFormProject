@@ -1,14 +1,18 @@
 package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
 import org.blog.blogflatformproject.board.domain.Tag;
-import org.blog.blogflatformproject.board.repository.service.BoardService;
-import org.blog.blogflatformproject.board.repository.service.TagService;
+import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.service.TagService;
+import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
+import org.blog.blogflatformproject.user.domain.User;
+import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +31,14 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/board")
 @RequiredArgsConstructor
+@Slf4j
 public class BoardController {
 
     private final BoardService boardService;
     private final BlogService blogService;
     private final TagService tagService;
+    private final UserService userService;
+    private final JwtTokenizer jwtTokenizer;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -78,10 +85,19 @@ public class BoardController {
             return ResponseEntity.status(500).body("파일 업로드 실패!");
         }
     }
+
+
     //게시글 상세창 이동
-    @GetMapping("/boardInfo/{boardid}")
-    public String getBoardInfo(@PathVariable("boardid") Long boardId , Model model){
+    @GetMapping("/boardInfo/{boardId}")
+    public String getBoardInfo(@PathVariable("boardId") Long boardId , Model model){
         Board brd = boardService.findById(boardId);
+        //해당글의 유저 가져오기
+        Long userId = brd.getBlog().getUser().getUserId();
+        //
+        //log.info("userid:{}",userId);
+        User user = userService.findByUserId(userId);
+
+
         BoardDTO dto = new BoardDTO();
         Set<Tag> set = brd.getTags();
 
@@ -91,6 +107,10 @@ public class BoardController {
         dto.setBlogId(brd.getBlog().getBlogId());
         dto.setBoardId(brd.getBoardId());
         dto.setCreateAt(brd.getCreateAt());
+        dto.setUserImgPath(user.getImagePath());
+        dto.setUserName(user.getUsername());
+
+
         model.addAttribute("board" , dto);
         model.addAttribute("tags" , set);
         return "pages/board/boardInfo";
@@ -106,7 +126,6 @@ public class BoardController {
         for(Board post : set){
             if(Objects.equals(post.getBoardId(), boardId)){
                 Board board = boardService.findById(boardId);
-                System.out.println(board);
                 model.addAttribute("board",board);
                 return "pages/board/updateForm";
             }

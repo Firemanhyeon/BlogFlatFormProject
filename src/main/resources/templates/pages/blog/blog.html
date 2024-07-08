@@ -42,10 +42,11 @@
         <div id="profile" class="profile">
             <img th:src="@{${userImg}}" alt="Profile Image" class="profile-image" id="profile-image">
             <div class="profile-info">
-                <h2 id="profile-name">정호현</h2>
-                <div class="follow-info">
-                    <span id="follower-count">0 팔로워</span>
-                    <span id="following-count">0 팔로잉</span>
+                <h2 id="profile-name" th:text="${blog.blogName}">블로그이름</h2>
+                <input type="hidden" th:value="${username}" id="blogUserName">
+                <div class="follow-info" id="followInfo">
+                    <span id="follower-count"></span>
+                    <span id="following-count"></span>
                 </div>
             </div>
         </div>
@@ -100,8 +101,80 @@
         </div>
     </div>
 
+
+<script>
+$(document).ready(function(){
+
+
+
+    function getCookieValue(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    let username = getCookieValue('username');
+    let blogUserName = $('#blogUserName').val();
+    console.log(username);
+    console.log(blogUserName);
+    if (username != blogUserName) {
+        const button = $('<button>', {
+            type: 'button',
+            class: 'btn btn-info',
+            id: 'followBtn',
+            text: '팔로우'
+        });
+        $('#followInfo').append(button);
+
+
+        $('#followBtn').click(function () {
+            $.ajax({
+                url: '/api/user/follow',
+                method: 'POST',
+                data: {
+                    follower: blogUserName
+                },
+                success: function (result) {
+                    countFollow();
+                    countFollowing();
+                },
+                error: function (err) {
+                    alert('이미 팔로우 했습니다.');
+                }
+
+            })
+        })
+    }
+    function countFollow() {
+        let blogUserName = $('#blogUserName').val();
+        $.ajax({
+            url: '/api/user/getFollowCnt?blogUserName=' + blogUserName,
+            method: 'GET',
+            success: function (result) {
+                $('#follower-count').text(result + ' 팔로워');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+
+    function countFollowing() {
+        let blogUserName = $('#blogUserName').val();
+        $.ajax({
+            url: '/api/user/getFollowingCnt?blogUserName=' + blogUserName,
+            method: 'GET',
+            success: function (result) {
+                $('#following-count').text(result + ' 팔로잉');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+    countFollow();
+    countFollowing();
+})
+</script>
 </div>
-
-
 </body>
 </html>

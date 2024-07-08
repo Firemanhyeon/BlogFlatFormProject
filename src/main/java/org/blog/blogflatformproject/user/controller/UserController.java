@@ -4,18 +4,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.user.domain.User;
-import org.blog.blogflatformproject.user.dto.FileDTO;
+import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/user")
@@ -40,7 +34,7 @@ public class UserController {
                           RedirectAttributes redirectAttributes){
         if(!imageFile.isEmpty()){
             //파일저장
-            FileDTO dto = userService.fileUpload(imageFile);
+            FileDto dto = userService.fileUpload(imageFile);
             user.setImagePath(dto.getImagePath());
             user.setImageName(dto.getImageName());
         }
@@ -92,6 +86,11 @@ public class UserController {
     @GetMapping("/logout")
     public String logOut(HttpServletResponse response){
         System.out.println("로그아웃");
+        deleteCookie(response);
+        return "redirect:/";
+    }
+
+    public void deleteCookie(HttpServletResponse response){
         Cookie cookie = new Cookie("username" , null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
@@ -107,9 +106,14 @@ public class UserController {
         response.addCookie(refreshToken);
         response.addCookie(cookie);
         response.addCookie(accessToken);
+    }
 
-
-
+    //회원탈퇴
+    @PostMapping("/deleteUser")
+    public String deleteUser(@CookieValue("username") String username,
+                             HttpServletResponse response){
+        userService.deleteUser(username);
+        deleteCookie(response);
         return "redirect:/";
     }
 }

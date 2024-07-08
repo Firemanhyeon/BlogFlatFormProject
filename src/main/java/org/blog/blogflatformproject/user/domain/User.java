@@ -1,5 +1,6 @@
 package org.blog.blogflatformproject.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.blog.blogflatformproject.blog.domain.Blog;
@@ -53,7 +54,7 @@ public class User {
     private Set<Role> roles;
 
     @OneToMany(mappedBy = "follower" , cascade = CascadeType.ALL)
-    private Set<Follow> follows;
+    private Set<Follow> followers;
 
     @OneToMany(mappedBy = "following" , cascade = CascadeType.ALL)
     private Set<Follow> following;

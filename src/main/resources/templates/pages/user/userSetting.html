@@ -15,6 +15,7 @@
             <img th:src="${user.imagePath}" alt="Profile Image" class="profile-image">
             <input type="text" class="profile-name" readonly id="updateInput" th:value="${user.name}"/>
             <a href="#" class="edit-link" id="updateUserName">수정</a>
+
         </div>
         <input  type="file" class="form-control" id="imageChange" th:value="이미지업로드"/>
         <div class="profile-details">
@@ -39,8 +40,9 @@
 
                 </div>
             </div>
-
-            <button class="btn1 btn-primary btn-lg btn-block" id="deleteUser">회원 탈퇴</button>
+            <form action="/user/deleteUser" method="POST" id="deleteForm">
+                <button class="btn1 btn-primary btn-lg btn-block" id="deleteUser">회원 탈퇴</button>
+            </form>
         </div>
     </div>
 
@@ -189,7 +191,7 @@
     $('#deleteUser').click(function(){
         let chk = confirm('정말로 삭제하시겠습니까?');
         if(chk){
-
+            $('#deleteForm').submit();
         }
     })
 

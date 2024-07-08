@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.repository.service.BoardService;
+import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -24,7 +24,7 @@ public class BlogController {
 
     //블로그이동
     @GetMapping("/{username}")
-    public String goBlog(@CookieValue(value="username" , defaultValue = "") String username, Model model){
+    public String goBlog(@PathVariable("username") String username, Model model){
         if(username.isEmpty()){
             return "redirect:/user/loginform";
         }
@@ -37,6 +37,29 @@ public class BlogController {
             model.addAttribute("boardList" , board);
             model.addAttribute("blog" , blog);
             model.addAttribute("userImg",userImage);
+            model.addAttribute("username" , user.getUsername());
+            return "pages/blog/blog";
+        }else{
+            //블로그를 생성하지않았을 시 블로그생성화면으로이동
+            return "pages/blog/blogform";
+        }
+    }
+    //내 블로그이동
+    @GetMapping("/mypage")
+    public String goMyBlog(@CookieValue(value = "username" , defaultValue = "") String username , Model model){
+        if(username.isEmpty()){
+            return "redirect:/user/loginform";
+        }
+        Blog blog  = blogService.findByUsername(username);
+        User user = userService.findByUserName(username);
+        String userImage = user.getImagePath();
+
+        List<Board> board = boardService.findByUsername(username);
+        if(blog!=null){
+            model.addAttribute("boardList" , board);
+            model.addAttribute("blog" , blog);
+            model.addAttribute("userImg",userImage);
+            model.addAttribute("username" , user.getUsername());
             return "pages/blog/blog";
         }else{
             //블로그를 생성하지않았을 시 블로그생성화면으로이동

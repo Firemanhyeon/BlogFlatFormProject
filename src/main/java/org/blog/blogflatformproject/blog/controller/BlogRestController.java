@@ -23,8 +23,10 @@ public class BlogRestController {
     @GetMapping("/check")
     public Long blogCheck(@CookieValue(value="username" , defaultValue = "") String username){
         Blog blog = blogService.findByUsername(username);
-        System.out.println(blog.getBlogId());
-        return blog.getBlogId();
+        if(blog!=null){
+            return blog.getBlogId();
+        }
+        return null;
     }
     @PutMapping("/updateBlogName")
     public ResponseEntity<String> updateBlogName(@RequestParam("blogName") String blogName,
@@ -38,4 +40,5 @@ public class BlogRestController {
         }
         return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
     }
+
 }

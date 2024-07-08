@@ -1,4 +1,4 @@
-package org.blog.blogflatformproject.board.repository.service;
+package org.blog.blogflatformproject.board.service;
 
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.board.domain.Category;

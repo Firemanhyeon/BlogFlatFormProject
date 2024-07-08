@@ -5,13 +5,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.blog.blogflatformproject.user.domain.Follow;
 import org.blog.blogflatformproject.user.domain.RefreshToken;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.Role;
 import org.blog.blogflatformproject.user.domain.User;
-import org.blog.blogflatformproject.user.dto.FileDTO;
+import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.dto.UserLoginDto;
 import org.blog.blogflatformproject.user.dto.UserLoginResponseDto;
+import org.blog.blogflatformproject.user.service.FollowService;
 import org.blog.blogflatformproject.user.service.RefreshTokenService;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ public class UserRestController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
     private final RefreshTokenService refreshTokenService;
+    private final FollowService followService;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid UserLoginDto loginDto , BindingResult bindingResult ,HttpServletRequest request ,  HttpServletResponse response){
@@ -126,6 +128,7 @@ public class UserRestController {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userId(user.getUserId())
+                .userName(user.getUsername())
                 .name(user.getName())
                 .build();
     }
@@ -187,7 +190,7 @@ public class UserRestController {
             user = userService.findByUserName(username);
         }
         //프로필사진 파일저장
-        FileDTO file = userService.fileUpload(imageFile);
+        FileDto file = userService.fileUpload(imageFile);
         //유저정보 파일경로 user테이블에서 수정
 
         if(file!=null){
@@ -200,6 +203,7 @@ public class UserRestController {
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
     }
 
+    //이메일변경
     @PutMapping("/updateEmail")
     public ResponseEntity<String> updateUserEmail(@RequestParam("email") String email,
                                                   @CookieValue(value = "username" ,  defaultValue = "") String username){
@@ -213,11 +217,10 @@ public class UserRestController {
 
     }
 
-
+    //이메일수신동의 변경
     @PutMapping("/updateEmailStatus")
     public ResponseEntity<String> updateUserEmailStatus(@RequestParam("emailStatus") boolean emailStatus,
                                                         @CookieValue(value = "username", defaultValue = "") String username){
-        System.out.println("1111");
         User user = userService.findByUserName(username);
         if(user!=null){
             user.setEmailStatus(emailStatus);
@@ -225,6 +228,36 @@ public class UserRestController {
             return new ResponseEntity(updateUser.isEmailStatus(),HttpStatus.OK);
         }
         return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+    }
+
+    //팔로우
+    @PostMapping("/follow")
+    public ResponseEntity follow(@RequestParam("follower") String followedUsername, @CookieValue("accessToken") String accessToken){
+
+        Long followingId = jwtTokenizer.getUserIdFromToken(accessToken);
+        Long followedId = userService.findByUserName(followedUsername).getUserId();
+        Follow follow = followService.getFollow(followingId,followedId);
+        if(follow!=null){
+            return ResponseEntity.ok().build();
+        }
+        return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
+    }
+
+    //팔로우수 불러오기
+    @GetMapping("/getFollowCnt")
+    public ResponseEntity getFollowerCnt(@RequestParam("blogUserName") String blogUserName){
+        User user = userService.findByUserName(blogUserName);
+        int followCount = followService.getFollowerCnt(user.getUserId());
+
+        return new ResponseEntity(followCount,HttpStatus.OK);
+    }
+
+    @GetMapping("/getFollowingCnt")
+    public ResponseEntity getFollowingCnt(@RequestParam("blogUserName")String blogUserName){
+        User user = userService.findByUserName(blogUserName);
+        int follwingCount = followService.getFollwingCnt(user.getUserId());
+
+        return new ResponseEntity(follwingCount,HttpStatus.OK);
     }
 
 

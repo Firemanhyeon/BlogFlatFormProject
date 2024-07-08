@@ -7,8 +7,11 @@
     <meta charset="UTF-8">
     <title>board</title>
     <link rel="stylesheet" href="/css/board.css">
+    <link rel="stylesheet" href="/css/blog.css">
+
     <style>
         a {
+            font-size: 20px;
             text-decoration: none; /* 밑줄 제거 */
             color: black; /* 글자 색상 검은색으로 설정 */
         }
@@ -24,11 +27,11 @@
     <div id="blog-container">
         <h1 id="blog-title" th:text="${board.boardTitle}">boardTitle</h1>
         <input type="hidden" th:value="${board.blogId}" id="blogId">
+
+
         <div id="blog-info">
-            <span id="blog-author" th:text="${board.blogName}">blogName</span>
+            <a id="blog-author" th:href="@{/blog/{username}(username=${board.userName})}" th:text="${board.blogName}">blogName</a>
             <span id="blog-date" th:text="${board.createAt}">boardcreatedAt</span>
-
-
         </div>
         <div id="blog-tags">
 
@@ -36,15 +39,57 @@
         <div id="blog-content">
 
         </div>
+        <hr>
+        <div id="profile" class="profile">
+            <img th:src="@{${board.userImgPath}}" alt="Profile Image" class="profile-image" id="profile-image">
+            <div class="profile-info">
+                <a id="profile-name" th:href="@{/blog/{username}(username=${board.userName})}" th:text="${board.blogName}">블로그이름</a>
+            </div>
+        </div>
+        <hr>
+        <div id="comments-section">
+            <h2>10개의 댓글</h2>
+            <div id="comment-form">
+                <form action=""></form>
+                <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
+                <button id="comment-submit">댓글 작성</button>
+            </div>
+            <div id="comments-list">
+                <div class="comment">
+                    <div class="comment-header">
+<!--                        <img  alt="프로필 이미지" class="comment-profile-img">-->
+                        <span class="comment-username">오병진</span>
+                        <span class="comment-time">5일 전</span>
+                    </div>
+                    <div class="comment-body">
+                        <p>심각한 사안인데 어째 조용하네요</p>
+                    </div>
+<!--                    <div class="comment-footer">-->
+<!--                        <span class="comment-replies-toggle">2개의 답글</span>-->
+<!--                    </div>-->
+<!--                    <div class="comment-replies">-->
+<!--                        <div class="reply">-->
+<!--                            <div class="comment-header">-->
+<!--                                <img src="path_to_profile_image" alt="프로필 이미지" class="comment-profile-img">-->
+<!--                                <span class="comment-username">ShinJuYong</span>-->
+<!--                                <span class="comment-time">5일 전</span>-->
+<!--                            </div>-->
+<!--                            <div class="comment-body">-->
+<!--                                <p>대댓글</p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script th:inline="javascript">
         let obj = [[${board}]];
         let tags = [[${tags}]];
         //자기게시물일때만 수정, 삭제 버튼 보이기
-        console.log(obj);
         let boardId = obj.boardId;
-        console.log(boardId);
         $.ajax({
             url:"/blog/check",
             method:"GET",
@@ -83,8 +128,6 @@
                 console.log(err);
             }
         })
-
-
         // tagName을 기준으로 오름차순으로 정렬
         tags.sort((a, b) => {
             if (a.tagName < b.tagName) {
@@ -102,6 +145,26 @@
         })
 
         document.getElementById('blog-content').innerHTML += obj.boardContent;
+
+        $('#comment-submit').click(function(){
+            let value = $('#comment-input').val();
+            let boardId = obj.boardId;
+            $.ajax({
+                url:'/board/addReply',
+                method:'POST',
+                data:{
+                    replyContent:value,
+                    boardId:boardId
+                },
+                success:function(result){
+                    console.log(result);
+                },
+                error:function(err){
+                    console.log(err);
+                }
+            })
+
+        })
     </script>
 </div>
 </body>

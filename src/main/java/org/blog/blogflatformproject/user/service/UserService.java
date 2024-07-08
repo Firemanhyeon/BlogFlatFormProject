@@ -3,11 +3,12 @@ package org.blog.blogflatformproject.user.service;
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.user.domain.Role;
 import org.blog.blogflatformproject.user.domain.User;
-import org.blog.blogflatformproject.user.dto.FileDTO;
+import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.repository.RoleRepository;
 import org.blog.blogflatformproject.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -55,9 +56,13 @@ public class UserService {
             return true;
         }
     }
-    //회원id로 회원정보 불러오기.
+    //회원이름으로 회원정보 불러오기.
     public User findByUserName(String username){
         return userRepository.findByUsername(username);
+    }
+    //회원아이디로 회원정보불러오기
+    public User findByUserId(Long userId){
+        return userRepository.findById(userId).orElse(null);
     }
     //
     //파일 삭제
@@ -71,7 +76,8 @@ public class UserService {
         }
     }
     //파일저장
-    public FileDTO fileUpload(MultipartFile imageFile){
+    @Transactional
+    public FileDto fileUpload(MultipartFile imageFile){
         if(!imageFile.isEmpty()){
             try{
                 String uploadDir="/Users/jeonghohyeon/Desktop/blogUserImage";
@@ -79,7 +85,7 @@ public class UserService {
                 Path filePath = Paths.get(uploadDir+"/"+fileName);
                 Files.copy(imageFile.getInputStream(),filePath);
 
-                FileDTO fileDTO = new FileDTO();
+                FileDto fileDTO = new FileDto();
                 fileDTO.setImagePath(filePath.toString());
                 fileDTO.setImageName(imageFile.getOriginalFilename());
                 return fileDTO;
@@ -92,6 +98,7 @@ public class UserService {
         }
     }
     //회원 이름 수정
+    @Transactional
     public User updateName(String name , String username){
         User user = findByUserName(username);
         if(user!=null){
@@ -105,7 +112,13 @@ public class UserService {
         return userRepository.findByImagePath(imgPath);
     }
     //회원정보저장,수정
+    @Transactional
     public User saveUser(User user){
         return userRepository.save(user);
+    }
+    //회원탈퇴
+    @Transactional
+    public void deleteUser(String username){
+        userRepository.deleteByUsername(username);
     }
 }

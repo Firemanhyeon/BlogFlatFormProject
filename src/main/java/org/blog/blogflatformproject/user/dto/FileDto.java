@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class FileDTO {
+public class FileDto {
 
     private String imagePath;
     private String imageName;

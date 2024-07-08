@@ -1,11 +1,13 @@
-package org.blog.blogflatformproject.board.repository.service;
+package org.blog.blogflatformproject.board.service;
 
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.repository.BlogRepository;
 import org.blog.blogflatformproject.board.domain.Board;
+import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.repository.BoardRepository;
+import org.blog.blogflatformproject.board.repository.ReplyRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -103,4 +105,5 @@ public class BoardService {
             }
             return false;
     }
+
 }

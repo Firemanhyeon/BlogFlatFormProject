@@ -20,6 +20,10 @@ public class BlogService {
         return blogRepository.findByUser_Username(username);
     }
 
+    //블로그아이디로 찾기
+    public Blog findById(Long blogId){
+        return blogRepository.findById(blogId).orElse(null);
+    }
     //블로그생성
     public Blog saveBlog(Blog blog , String username){
         User user = userRepository.findByUsername(username);
