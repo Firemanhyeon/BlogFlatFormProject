@@ -19,7 +19,40 @@
             cursor: pointer;
             color: black;
         }
+        .pagination-container {
+            display: flex;
+            justify-content: center; /* 가운데 정렬 */
+            margin-top: 20px; /* 페이지네이션과 다른 요소 사이에 여백 추가 */
+        }
 
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+        }
+        .page-item {
+            margin: 0 5px; /* 페이지 번호 사이 여백 */
+        }
+
+        .page-link {
+            display: block;
+            padding: 10px 15px;
+            color: black;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .page-item.disabled .page-link {
+            color: #ddd;
+            pointer-events: none; /* 클릭 방지 */
+        }
+
+        .page-item.active .page-link {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -48,22 +81,13 @@
         </div>
         <hr>
         <div id="comments-section">
-            <h2>10개의 댓글</h2>
+<!--            <h2 th:text="${replies.size()} + '개의 댓글'">10개의 댓글</h2>-->
             <div id="comment-form">
                 <form action=""></form>
                 <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
                 <button id="comment-submit">댓글 작성</button>
             </div>
             <div id="comments-list">
-                <div class="comment">
-                    <div class="comment-header">
-<!--                        <img  alt="프로필 이미지" class="comment-profile-img">-->
-                        <span class="comment-username">오병진</span>
-                        <span class="comment-time">5일 전</span>
-                    </div>
-                    <div class="comment-body">
-                        <p>심각한 사안인데 어째 조용하네요</p>
-                    </div>
 <!--                    <div class="comment-footer">-->
 <!--                        <span class="comment-replies-toggle">2개의 답글</span>-->
 <!--                    </div>-->
@@ -79,8 +103,27 @@
 <!--                            </div>-->
 <!--                        </div>-->
 <!--                    </div>-->
-                </div>
             </div>
+        </div>
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <ul class="pagination">
+                <li th:class="${replies.first} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link" href="#" onclick="fetchComments(0)">처음으로</a>
+                </li>
+                <li th:class="${replies.hasPrevious()} ? 'page-item' : 'page-item disabled'">
+                    <a class="page-link" href="#" onclick="fetchComments(${replies.number - 1})">이전페이지</a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(0, replies.totalPages - 1)}" th:class="${replies.number == i} ? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="#" onclick="fetchComments(${i})" th:text="${i + 1}">1</a>
+                </li>
+                <li th:class="${replies.hasNext()} ? 'page-item' : 'page-item disabled'">
+                    <a class="page-link" href="#" onclick="fetchComments(${replies.number + 1})">다음페이지</a>
+                </li>
+                <li th:class="${replies.last} ? 'page-item disabled' : 'page-item'">
+                    <a class="page-link" href="#" onclick="fetchComments(${replies.totalPages - 1})">마지막으로</a>
+                </li>
+            </ul>
         </div>
 
     </div>
@@ -106,7 +149,6 @@
                         id: 'deleteBoard',
                         text: '삭제'
                     }).appendTo('#blog-info');
-
                     $("#deleteBoard").click(function(){
 
                         $.ajax({
@@ -146,9 +188,73 @@
 
         document.getElementById('blog-content').innerHTML += obj.boardContent;
 
+
+        //댓글
+        // 댓글 불러오기
+        function fetchComments(page) {
+            $.ajax({
+                url: '/board/getReplies',
+                method: 'GET',
+                data: {
+                    boardId: boardId,
+                    page: page
+                },
+                success: function(response) {
+                    $('#comments-list').empty();
+                    console.log(response);
+                    response.content.forEach(function(reply) {
+                        let commentHtml = `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <img src="${reply.userImgPath}" alt="프로필 이미지" class="comment-profile-img">
+                                    <a class="comment-username">${reply.username}</a>
+                                    <span class="comment-time">${new Date(reply.replyCreated).toLocaleDateString()}</span>
+                                </div>
+                                <div class="comment-body">
+                                    <p>${reply.replyContent}</p>
+                                </div>
+                                <div class="comment-footer">
+                                    <button class="reply-toggle" onclick="toggleReplyForm(${reply.replyId})">답글 달기</button>
+                                    <div class="reply-form" id="reply-form-${reply.replyId}">
+                                       <textarea id="comment-input" placeholder="답글을 작성하세요"></textarea>
+                                       <button id="comment-submit">댓글 작성</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        $('#comments-list').append(commentHtml);
+                    });
+
+                    // 페이지네이션 업데이트
+                    $('.pagination').empty();
+                    let paginationHtml = `
+                        <li class="${response.first ? 'page-item disabled' : 'page-item'}" >
+                            <a class="page-link" href="#" onclick="fetchComments(0)">처음으로</a>
+                        </li>`;
+                    for (let i = 0; i < response.totalPages; i++) {
+                        paginationHtml += `
+                            <li class="${response.number == i ? 'page-item active' : 'page-item'}">
+                                <a class="page-link" href="#" onclick="fetchComments(${i})">${i + 1}</a>
+                            </li>`;
+                    }
+                    paginationHtml += `
+                        <li class="${response.last ? 'page-item disabled' : 'page-item'}">
+                            <a class="page-link" href="#" onclick="fetchComments(${response.totalPages - 1})">마지막으로</a>
+                        </li>`;
+                    $('.pagination').append(paginationHtml);
+                },
+                error: function(err) {
+                    console.log(err);
+                }
+            });
+        }
+
         $('#comment-submit').click(function(){
             let value = $('#comment-input').val();
             let boardId = obj.boardId;
+            if(value==''){
+                alert('값을 입력하세요');
+                return;
+            }
             $.ajax({
                 url:'/board/addReply',
                 method:'POST',
@@ -158,13 +264,17 @@
                 },
                 success:function(result){
                     console.log(result);
+                    $('#comment-input').val('');
+                    fetchComments();
                 },
                 error:function(err){
                     console.log(err);
                 }
             })
-
         })
+
+
+        fetchComments(0);
     </script>
 </div>
 </body>

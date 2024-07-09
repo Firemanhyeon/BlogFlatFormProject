@@ -10,9 +10,15 @@ import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.ReplyService;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/board")
@@ -43,7 +49,7 @@ public class BoardRestController {
         }
 
         User user = userService.findByUserName(username);
-        Reply reply = replyService.addReply(replyContent,boardId);
+        Reply reply = replyService.addReply(replyContent,boardId,user.getUserId());
         ReplyDto replyDto = new ReplyDto();
         replyDto.setReplyCreated(reply.getReplyCreated());
         replyDto.setReplyContent(reply.getReplyContent());
@@ -56,5 +62,14 @@ public class BoardRestController {
         }else{
             return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
         }
+    }
+    //댓글불러오기
+    @GetMapping("/getReplies")
+    public Page<ReplyDto> getReplies(@RequestParam("boardId") Long boardId,
+                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                     @RequestParam(value = "size", defaultValue = "5") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReplyDto> replyPage = replyService.getReplies(boardId, pageable);
+        return replyPage;
     }
 }

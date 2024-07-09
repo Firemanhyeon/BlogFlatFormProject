@@ -47,11 +47,12 @@
                 <div class="follow-info" id="followInfo">
                     <span id="follower-count"></span>
                     <span id="following-count"></span>
+                    <button type="button" class="btn btn-info" id="unfollowBtn">언팔로우</button>
+                    <button type="button" class="btn btn-info" id="followBtn">팔로우</button>
                 </div>
             </div>
         </div>
         <nav id="nav-tabs" class="nav-tabs">
-            <ul>
                 <li class="tab-item" id="posts-tab" style="cursor: pointer"><a onclick="boardClick()" >글</a></li>
                 <li class="tab-item" id="series-tab" style="cursor: pointer"><a onclick="seriesClick()">시리즈</a></li>
                 <li class="tab-item" id="about-tab" style="cursor: pointer"><a  onclick="aboutClick()">소개</a></li>
@@ -104,46 +105,75 @@
 
 <script>
 $(document).ready(function(){
-
-
-
-    function getCookieValue(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-    let username = getCookieValue('username');
+    let followCheck =  [[${isFollow}]];
     let blogUserName = $('#blogUserName').val();
-    console.log(username);
-    console.log(blogUserName);
-    if (username != blogUserName) {
-        const button = $('<button>', {
-            type: 'button',
-            class: 'btn btn-info',
-            id: 'followBtn',
-            text: '팔로우'
-        });
-        $('#followInfo').append(button);
 
-
-        $('#followBtn').click(function () {
-            $.ajax({
-                url: '/api/user/follow',
-                method: 'POST',
-                data: {
-                    follower: blogUserName
-                },
-                success: function (result) {
-                    countFollow();
-                    countFollowing();
-                },
-                error: function (err) {
-                    alert('이미 팔로우 했습니다.');
-                }
-
-            })
-        })
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
     }
+    let nowUserName = getCookie("username");
+
+    if(followCheck){
+        $('#followBtn').hide();
+        $('#unfollowBtn').show();
+    }
+    else{
+        $('#unfollowBtn').hide();
+        $('#followBtn').show();
+    }
+    if(blogUserName == nowUserName){
+        $('#followBtn').hide();
+        $('#unfollowBtn').hide();
+    }
+
+    $('#followBtn').click(function () {
+        $.ajax({
+            url: '/api/user/follow',
+            method: 'POST',
+            data: {
+                follower: blogUserName
+            },
+            success: function (result) {
+                countFollow();
+                countFollowing();
+                $('#followBtn').hide();
+                $('#unfollowBtn').show();
+            },
+            error: function (err) {
+                alert('이미 팔로우 했습니다.');
+            }
+
+        })
+    })
+    $('#unfollowBtn').click(function(){
+        $.ajax({
+            url:'/api/user/unfollow',
+            method:'DELETE',
+            data:{
+                follower: blogUserName
+            },
+            success:function(){
+                countFollow();
+                countFollowing();
+                $('#unfollowBtn').hide();
+                $('#followBtn').show();
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+
+    })
+
+
+
     function countFollow() {
         let blogUserName = $('#blogUserName').val();
         $.ajax({

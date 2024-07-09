@@ -22,6 +22,8 @@ public class Reply {
     @Column(name = "reply_content")
     private String replyContent;
 
+    private Long userId;
+
     @Column(name = "reply_created")
     private LocalDateTime replyCreated;
 

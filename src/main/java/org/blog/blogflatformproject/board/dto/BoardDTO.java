@@ -2,8 +2,10 @@ package org.blog.blogflatformproject.board.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.blog.blogflatformproject.board.domain.Reply;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,4 +19,5 @@ public class BoardDTO {
 
     private String userImgPath;
     private String userName;
+    private Set<Reply> replies;
 }

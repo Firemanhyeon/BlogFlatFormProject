@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ReplyDto {
+    private Long replyId;
     private String replyContent;
     private LocalDateTime replyCreated;
     private Long preReplyId;

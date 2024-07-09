@@ -17,4 +17,6 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
 
     @Query(value = "select count(*) from follow  where following_id=?1",nativeQuery = true)
     int getFollowingCount(Long id);
+
+    void deleteByFollowerAndFollowing(User follower,User following);
 }

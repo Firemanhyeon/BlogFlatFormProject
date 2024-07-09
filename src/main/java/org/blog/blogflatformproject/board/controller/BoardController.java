@@ -5,14 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
+import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
 import org.blog.blogflatformproject.board.domain.Tag;
+import org.blog.blogflatformproject.board.dto.ReplyDto;
 import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.service.ReplyService;
 import org.blog.blogflatformproject.board.service.TagService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +45,7 @@ public class BoardController {
     private final TagService tagService;
     private final UserService userService;
     private final JwtTokenizer jwtTokenizer;
+    private final ReplyService replyService;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -89,18 +96,22 @@ public class BoardController {
 
     //게시글 상세창 이동
     @GetMapping("/boardInfo/{boardId}")
-    public String getBoardInfo(@PathVariable("boardId") Long boardId , Model model){
+    public String getBoardInfo(@PathVariable("boardId") Long boardId , Model model,
+                               @RequestParam(value = "page", defaultValue = "0") int page,
+                               @RequestParam(value = "size", defaultValue = "5") int size){
+
         Board brd = boardService.findById(boardId);
         //해당글의 유저 가져오기
         Long userId = brd.getBlog().getUser().getUserId();
-        //
         //log.info("userid:{}",userId);
         User user = userService.findByUserId(userId);
-
-
         BoardDTO dto = new BoardDTO();
         Set<Tag> set = brd.getTags();
+        //해당글의 댓글 가져오기
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ReplyDto> replies = replyService.getReplies(brd.getBoardId(),pageable);
 
+        log.info("content:{}", replies.getContent());
         dto.setBoardContent(brd.getBoardContent());
         dto.setBoardTitle(brd.getBoardTitle());
         dto.setBlogName(brd.getBlog().getBlogName());
@@ -110,11 +121,13 @@ public class BoardController {
         dto.setUserImgPath(user.getImagePath());
         dto.setUserName(user.getUsername());
 
-
         model.addAttribute("board" , dto);
         model.addAttribute("tags" , set);
+        model.addAttribute("replies" , replies);
+
         return "pages/board/boardInfo";
     }
+
     //게시글 수정창 이동
     @GetMapping("/update/{boardId}")
     public String getBoardUpdate(@PathVariable("boardId") Long boardId ,

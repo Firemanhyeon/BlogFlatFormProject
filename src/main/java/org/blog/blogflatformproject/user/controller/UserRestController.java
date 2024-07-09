@@ -242,7 +242,15 @@ public class UserRestController {
         }
         return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
     }
-
+    //언팔로우
+    @DeleteMapping("/unfollow")
+    public void unfollow(@RequestParam("follower") String unfollowedUsername, @CookieValue("accessToken") String accessToken){
+        Long followingId = jwtTokenizer.getUserIdFromToken(accessToken);
+        Long followedId = userService.findByUserName(unfollowedUsername).getUserId();
+        if(followingId!=null && followedId!=null){
+            followService.getUnfollow(followingId , followedId);
+        }
+    }
     //팔로우수 불러오기
     @GetMapping("/getFollowCnt")
     public ResponseEntity getFollowerCnt(@RequestParam("blogUserName") String blogUserName){
@@ -251,7 +259,7 @@ public class UserRestController {
 
         return new ResponseEntity(followCount,HttpStatus.OK);
     }
-
+    //팔로잉수 불러오기
     @GetMapping("/getFollowingCnt")
     public ResponseEntity getFollowingCnt(@RequestParam("blogUserName")String blogUserName){
         User user = userService.findByUserName(blogUserName);

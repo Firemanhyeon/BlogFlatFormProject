@@ -32,6 +32,13 @@ public class FollowService {
         follow.setFollower(followedUser);
         return followRepository.save(follow);
     }
+    //언팔로우
+    @Transactional
+    public void getUnfollow(Long followingId, Long followedId) {
+        User followingUserChk = userRepository.findById(followingId).orElse(null);
+        User followedUserChk = userRepository.findById(followedId).orElse(null);
+        followRepository.deleteByFollowerAndFollowing(followedUserChk,followingUserChk);
+    }
 
     //팔로워 수 가져오기
     public int getFollowerCnt(Long userId){
@@ -41,4 +48,15 @@ public class FollowService {
      public int getFollwingCnt(Long userId){
         return followRepository.getFollowingCount(userId);
      }
+     //팔로우했는지안했는지 체크
+    public boolean chkFollow(User followedUser , User followingUser){
+        Follow follow = followRepository.findByFollowerAndFollowing(followedUser,followingUser);
+        if(follow!=null){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
 }

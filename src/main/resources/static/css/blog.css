@@ -96,3 +96,25 @@
     font-size: 18px;
     margin-top: 20px;
 }
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid #ddd;
+}
+.tab-item {
+    list-style: none;
+    margin: 0 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+}
+.tab-item a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+.tab-item.active {
+    border-bottom: 2px solid green;
+    font-weight: bold;
+}
