@@ -83,7 +83,6 @@
         <div id="comments-section">
 <!--            <h2 th:text="${replies.size()} + '개의 댓글'">10개의 댓글</h2>-->
             <div id="comment-form">
-                <form action=""></form>
                 <textarea id="comment-input" placeholder="댓글을 작성하세요"></textarea>
                 <button id="comment-submit">댓글 작성</button>
             </div>
@@ -188,8 +187,68 @@
 
         document.getElementById('blog-content').innerHTML += obj.boardContent;
 
+        //대댓글 등록
+        function addRecomment(replyId){
+            let value = $('#recommentInput-'+replyId).val();
+            console.log(value);
+            if(value==''){
+                alert('빈값입니다');
+                return;
+            }
+            $.ajax({
+                url:'/board/addCommentReply',
+                method:'POST',
+                contentType: 'application/json; charset=utf-8',
+                data:JSON.stringify({
+                    preReplyId:replyId,
+                    replyContent:value,
+                    boardId:boardId
+                }),
+                success:function(result){
+                    console.log(result);
+                },
+                error:function(err){
+                    console.log(err);
+                }
+            })
+        }
 
-        //댓글
+        //대댓글 불러오기
+        function viewRecomment(replyId){
+
+            $.ajax({
+                url:'/board/getCommentReplies',
+                method:'GET',
+                data:{
+                    replyId:replyId
+                },
+                success:function(result){
+                    let commentContainer = $('#comment-' + result[0].preReplyId);
+                    console.log(commentContainer);
+                    commentContainer.empty();
+                    // 각 답글을 댓글 컨테이너에 추가합니다
+                    result.forEach(function (reply) {
+                        let replyHtml = `
+                    <div class="reply">
+                        <div class="recomment">
+                            <div class="comment-header">
+                                <img src="${reply.userImgPath}" alt="프로필 이미지" class="comment-profile-img">
+                                <a class="comment-username">${reply.username}</a>
+                            </div>
+                            <div class="comment-body">
+                                <p>${reply.replyContent}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                        commentContainer.append(replyHtml);
+                    });
+                },
+                error:function(err){
+                    console.log(err)
+                }
+            })
+        }
+
         // 댓글 불러오기
         function fetchComments(page) {
             $.ajax({
@@ -203,6 +262,7 @@
                     $('#comments-list').empty();
                     console.log(response);
                     response.content.forEach(function(reply) {
+                        console.log(reply);
                         let commentHtml = `
                             <div class="comment">
                                 <div class="comment-header">
@@ -210,20 +270,21 @@
                                     <a class="comment-username">${reply.username}</a>
                                     <span class="comment-time">${new Date(reply.replyCreated).toLocaleDateString()}</span>
                                 </div>
-                                <div class="comment-body">
+                                <div class="comment-body" >
                                     <p>${reply.replyContent}</p>
                                 </div>
+                                <div class="recomment-body" id="comment-${reply.replyId}">
+                                <a id="recommentView" onclick="viewRecomment(${reply.replyId})">답글 보기</a>
+                                </div>
                                 <div class="comment-footer">
-                                    <button class="reply-toggle" onclick="toggleReplyForm(${reply.replyId})">답글 달기</button>
-                                    <div class="reply-form" id="reply-form-${reply.replyId}">
-                                       <textarea id="comment-input" placeholder="답글을 작성하세요"></textarea>
-                                       <button id="comment-submit">댓글 작성</button>
+                                    <div class="reply-form" id="reReply-form">
+                                       <textarea id="recommentInput-${reply.replyId}" placeholder="답글을 작성하세요" style="width: 85%"></textarea>
+                                       <button id="recommentSubmit" onclick="addRecomment(${reply.replyId})">답글 작성</button>
                                     </div>
                                 </div>
                             </div>`;
                         $('#comments-list').append(commentHtml);
                     });
-
                     // 페이지네이션 업데이트
                     $('.pagination').empty();
                     let paginationHtml = `
@@ -248,6 +309,7 @@
             });
         }
 
+        //댓글등록
         $('#comment-submit').click(function(){
             let value = $('#comment-input').val();
             let boardId = obj.boardId;
@@ -272,8 +334,6 @@
                 }
             })
         })
-
-
         fetchComments(0);
     </script>
 </div>

@@ -106,7 +106,7 @@ a {
     margin-bottom: 20px;
 }
 
-#comment-input {
+#comment-input , #recommentInput{
     width: 100%;
     height: 100px;
     padding: 10px;
@@ -116,7 +116,7 @@ a {
     resize: none;
 }
 
-#comment-submit {
+#comment-submit , #recommentSubmit{
     align-self: flex-end;
     padding: 10px 20px;
     background-color: #28a745;

@@ -11,6 +11,7 @@ public class ReplyDto {
     private String replyContent;
     private LocalDateTime replyCreated;
     private Long preReplyId;
+    private Long boardId;
 
     private String username;
     private String userImgPath;

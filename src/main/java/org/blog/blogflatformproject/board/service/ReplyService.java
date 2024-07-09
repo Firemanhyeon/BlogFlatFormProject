@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class ReplyService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board with id " + boardId + " not found"));
 
-        Page<Reply> replies = replyRepository.findByBoardOrderByReplyCreatedDesc(board, pageable);
+        Page<Reply> replies = replyRepository.findByBoardAndPreReplyIdIsNullOrderByReplyCreatedDesc(board, pageable);
         return replies.map(this::convertToDto);
     }
 
@@ -58,5 +60,36 @@ public class ReplyService {
         replyDto.setUserImgPath(user.getImagePath());
 
         return replyDto;
+    }
+
+    //대댓글 등록
+    public Reply addCommentReply(ReplyDto dto){
+        Reply reply = new Reply();
+        User user = userRepository.findByUsername(dto.getUsername());
+        Board brd = boardRepository.findById(dto.getBoardId()).orElse(null);
+        reply.setPreReplyId(dto.getPreReplyId());
+        reply.setReplyContent(dto.getReplyContent());
+        reply.setReplyCreated(LocalDateTime.now());
+        reply.setUserId(user.getUserId());
+        reply.setBoard(brd);
+        return replyRepository.save(reply);
+    }
+    //대댓글 불러오기
+    public List<ReplyDto> getCommentReplies(Long replyId){
+
+        List<Reply> reply = replyRepository.findAllByPreReplyId(replyId);
+        List<ReplyDto> dtos = new ArrayList<>();
+
+        for(Reply rply : reply){
+            ReplyDto dto = new ReplyDto();
+            dto.setReplyId(rply.getReplyId());
+            dto.setReplyContent(rply.getReplyContent());
+            User user = userRepository.findById(rply.getUserId()).orElse(null);
+            dto.setUsername(user.getUsername());
+            dto.setUserImgPath(user.getImagePath());
+            dto.setPreReplyId(replyId);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }

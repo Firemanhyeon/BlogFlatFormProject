@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -71,5 +72,33 @@ public class BoardRestController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ReplyDto> replyPage = replyService.getReplies(boardId, pageable);
         return replyPage;
+    }
+
+    //답글등록
+    @PostMapping("/addCommentReply")
+    public ResponseEntity addCommentReply(@RequestBody ReplyDto replyDto,
+                                          @CookieValue(value = "username",defaultValue = "") String username){
+        User user = userService.findByUserName(username);
+        replyDto.setUsername(username);
+        Reply reply = replyService.addCommentReply(replyDto);
+        ReplyDto replyDto1 = new ReplyDto();
+        replyDto1.setReplyCreated(reply.getReplyCreated());
+        replyDto1.setReplyContent(reply.getReplyContent());
+        replyDto1.setPreReplyId(reply.getPreReplyId());
+        replyDto1.setUsername(username);
+        replyDto1.setUserImgPath(user.getImagePath());
+        replyDto1.setPreReplyId(reply.getPreReplyId());
+        if(reply.getReplyContent()!=null){
+            return new ResponseEntity(replyDto1, HttpStatus.OK);
+        }else{
+            return new ResponseEntity(null,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //대댓글불러오기
+    @GetMapping("/getCommentReplies")
+    public List<ReplyDto> commentReplies(@RequestParam("replyId") Long replyId){
+        log.info("replyId:{}",replyId);
+        return replyService.getCommentReplies(replyId);
     }
 }
