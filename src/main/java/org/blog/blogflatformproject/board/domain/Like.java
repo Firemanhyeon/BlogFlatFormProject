@@ -22,7 +22,7 @@ public class Like {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
 }

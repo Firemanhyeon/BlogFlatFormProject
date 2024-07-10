@@ -59,7 +59,13 @@
             </ul>
         </nav>
         <div id="content" class="content">
-
+            <div style="width: 300px; margin: 0 auto ; margin-top: 30px">
+                <select class="form-select" aria-label="Default select example">
+                    <option value="1">최근날짜별</option>
+                    <option value="2">좋아요순</option>
+                    <option value="3">조회수높은순</option>
+                </select>
+            </div>
 <!--       내 글 섹션   -->
             <div id="posts-content">
                 <section class="py-5">
@@ -68,7 +74,7 @@
                             <div th:each="board:${boardList}" class="col mb-5" >
                                 <div class="card h-100">
                                     <!-- Product image-->
-                                    <img class="card-img-top" th:src="${board.firstImagePath}" alt="..."  />
+                                    <img th:if="${board.firstImagePath!=null}" class="card-img-top" th:src="${board.firstImagePath}" alt="..."  />
                                     <!-- Product details-->
                                     <div class="card-body p-4">
                                         <div class="text-center">
@@ -93,7 +99,31 @@
             </div>
                 <!--     내 시리즈 섹션     -->
                 <div id="series-content" style="display: none;">
-                    <p >시리즈</p>
+                    <button type="button" id="newSeriesBtn" class="btn btn-primary btn-lg" style="float: right"><a href="/blog/addSeriesForm" style="color: white">새 시리즈 만들기</a></button>
+                    <section class="py-5">
+                        <div class="container px-4 px-lg-5 mt-5">
+                            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                                <div th:each="series:${series}" class="col mb-5" >
+                                    <div class="card h-100">
+                                        <!-- Product details-->
+                                        <div class="card-body p-4">
+                                            <div class="text-center">
+                                                <!-- Product name-->
+                                                <h5 th:text="${series.seriesTitle}" class="fw-bolder"></h5>
+                                                <!-- Product price-->
+                                                시리즈
+                                            </div>
+                                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                                <div class="text-center">
+                                                    <a class="btn btn-outline-dark mt-auto" th:href="@{/board/getSeriesInfo/{seriesId}(seriesId=${series.seriesId})}">자세히 보기</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
                 <!--      내 소개 섹션      -->
                 <div id="about-content" style="display: none;">
@@ -131,6 +161,9 @@ $(document).ready(function(){
     if(blogUserName == nowUserName){
         $('#followBtn').hide();
         $('#unfollowBtn').hide();
+    }
+    if(blogUserName != nowUserName){
+        $('#newSeriesBtn').hide();
     }
 
     $('#followBtn').click(function () {

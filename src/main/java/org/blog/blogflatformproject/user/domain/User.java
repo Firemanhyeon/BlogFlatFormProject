@@ -65,7 +65,7 @@ public class User {
     @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     private Views views;
 
-    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
-    private Like like;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
+    private Set<Like> likes;
 
 }

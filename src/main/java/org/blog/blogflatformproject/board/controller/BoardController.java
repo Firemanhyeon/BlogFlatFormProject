@@ -3,6 +3,7 @@ package org.blog.blogflatformproject.board.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
+import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Reply;
@@ -12,6 +13,7 @@ import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
 import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.ReplyService;
+import org.blog.blogflatformproject.board.service.SeriesService;
 import org.blog.blogflatformproject.board.service.TagService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
@@ -30,9 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/board")
@@ -46,6 +46,7 @@ public class BoardController {
     private final UserService userService;
     private final JwtTokenizer jwtTokenizer;
     private final ReplyService replyService;
+    private final SeriesService seriesService;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -56,9 +57,15 @@ public class BoardController {
     @PostMapping("/addboard")
     public String addBoard(@ModelAttribute Board board,
                            @CookieValue(value="username" , defaultValue = "") String username,
-                           @RequestParam("tagName") String tags){
+                           @RequestParam("tagName") String tags,
+                           @RequestParam("seriesId") Optional<Long> seriesId){
         //태그 서비스호출 (이미 있는 태그면 그냥넣고 없는태그면 새로생성 후 Set안에넣기)
         Set<Tag> tagSet = tagService.addOrFind(tags);
+        //시리즈 찾기
+        if (seriesId.isPresent()) {
+            Series series = seriesService.findById(seriesId.get());
+            board.setSeries(series);
+        }
         //글등록
         Board board1 = boardService.addBoard(board,username,tagSet);
         if(board1.getBoardId()!=null){
@@ -98,11 +105,19 @@ public class BoardController {
     @GetMapping("/boardInfo/{boardId}")
     public String getBoardInfo(@PathVariable("boardId") Long boardId , Model model,
                                @RequestParam(value = "page", defaultValue = "0") int page,
-                               @RequestParam(value = "size", defaultValue = "5") int size){
+                               @RequestParam(value = "size", defaultValue = "5") int size,
+                                @CookieValue(value = "accessToken") String accessToken){
 
         Board brd = boardService.findById(boardId);
         //해당글의 유저 가져오기
         Long userId = brd.getBlog().getUser().getUserId();
+        if(accessToken!=null){
+            Long myId = jwtTokenizer.getUserIdFromToken(accessToken);
+            if(userId!=myId){
+                boardService.updateVisitCnt(brd);
+            }
+        }
+
         //log.info("userid:{}",userId);
         User user = userService.findByUserId(userId);
         BoardDTO dto = new BoardDTO();
@@ -124,6 +139,7 @@ public class BoardController {
         model.addAttribute("board" , dto);
         model.addAttribute("tags" , set);
         model.addAttribute("replies" , replies);
+        model.addAttribute("accessToken", accessToken);
 
         return "pages/board/boardInfo";
     }
@@ -140,6 +156,7 @@ public class BoardController {
             if(Objects.equals(post.getBoardId(), boardId)){
                 Board board = boardService.findById(boardId);
                 model.addAttribute("board",board);
+                model.addAttribute("series",board.getSeries());
                 return "pages/board/updateForm";
             }
         }
@@ -153,6 +170,22 @@ public class BoardController {
             return ResponseEntity.ok("ok");
         }
         return ResponseEntity.ok("fail");
+    }
+
+    //시리즈상세
+    @GetMapping("/getSeriesInfo/{seriesId}")
+    public String getSeriesInfo(@PathVariable("seriesId") Long seriesId , Model model){
+        Set<Board> brd = seriesService.findById(seriesId).getBoard();
+        Set<BoardDTO> dto = new HashSet<>();
+        for(Board board : brd){
+            BoardDTO boardDTO = new BoardDTO();
+            boardDTO.setBoardId(board.getBoardId());
+            boardDTO.setBoardTitle(board.getBoardTitle());
+            boardDTO.setFirstImagePath(board.getFirstImagePath());
+            dto.add(boardDTO);
+        }
+        model.addAttribute("board" , dto);
+        return "pages/board/seriesInfo";
     }
 
 }

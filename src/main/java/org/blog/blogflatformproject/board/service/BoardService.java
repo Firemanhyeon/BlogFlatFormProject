@@ -4,16 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.repository.BlogRepository;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.repository.BoardRepository;
-import org.blog.blogflatformproject.board.repository.ReplyRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,6 +51,7 @@ public class BoardService {
             beforeBoard.setBoardContent(board.getBoardContent());
             beforeBoard.setOpenYn(board.isOpenYn());
             beforeBoard.setTemporaryYn(board.isTemporaryYn());
+            beforeBoard.setSeries(board.getSeries());
             String firstImagePath = sanitizeBoardContent(board.getBoardContent());
             firstImagePath = extractFirstImageUrl(firstImagePath) ;
             beforeBoard.setFirstImagePath(firstImagePath);
@@ -62,7 +62,7 @@ public class BoardService {
         //해당유저의 글찾기
         public List<Board> findByUsername(String username){
             Blog blog = blogRepository.findByUser_Username(username);
-            return boardRepository.findByBlog(blog);
+            return boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrue(blog);
         }
 
 
@@ -104,6 +104,12 @@ public class BoardService {
                 return true;
             }
             return false;
+    }
+
+    //조회수+1
+    @Transactional
+    public void updateVisitCnt(Board brd){
+            boardRepository.updateVisitCnt(brd.getBoardId());
     }
 
 }

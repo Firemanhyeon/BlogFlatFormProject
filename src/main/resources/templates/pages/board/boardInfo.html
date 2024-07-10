@@ -8,6 +8,7 @@
     <title>board</title>
     <link rel="stylesheet" href="/css/board.css">
     <link rel="stylesheet" href="/css/blog.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 
     <style>
         a {
@@ -72,6 +73,9 @@
         <div id="blog-content">
 
         </div>
+
+        <i class="bi bi-chat-square-heart" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
+        <i class="bi bi-chat-square-heart-fill" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
         <hr>
         <div id="profile" class="profile">
             <img th:src="@{${board.userImgPath}}" alt="Profile Image" class="profile-image" id="profile-image">

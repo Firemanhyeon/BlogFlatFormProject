@@ -2,12 +2,17 @@ package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.blog.blogflatformproject.blog.domain.Series;
+import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
+import org.blog.blogflatformproject.board.dto.SeriesDto;
 import org.blog.blogflatformproject.board.repository.ReplyRepository;
 import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.ReplyService;
+import org.blog.blogflatformproject.board.service.SeriesService;
+import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.data.domain.Page;
@@ -32,9 +37,14 @@ public class BoardRestController {
 
     private final ReplyService replyService;
     private final UserService userService;
+    private final JwtTokenizer jwtTokenizer;
+    private final BlogService blogService;
+    private final SeriesService seriesService;
 
     @PutMapping("/updateboard")
-    public ResponseEntity<String> updateBoard(@ModelAttribute Board board){
+    public ResponseEntity<String> updateBoard(@ModelAttribute Board board,
+                                              @RequestParam("seriesId") Long seriesId){
+        board.setSeries(seriesService.findById(seriesId));
         if(boardService.updateBoard(board)!=null){
             return ResponseEntity.ok("ok");
         }else{
@@ -100,5 +110,11 @@ public class BoardRestController {
     public List<ReplyDto> commentReplies(@RequestParam("replyId") Long replyId){
         log.info("replyId:{}",replyId);
         return replyService.getCommentReplies(replyId);
+    }
+
+    //접속한 유저의 시리즈불러오기
+    @GetMapping("/getSeries")
+    public List<SeriesDto> getSeries(@CookieValue(value="username" , defaultValue = "") String username){
+        return seriesService.getSeries(username);
     }
 }

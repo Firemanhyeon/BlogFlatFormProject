@@ -39,6 +39,11 @@
                 <option th:selected="${board.temporaryYn == false}" value="false">임시글</option>
             </select>
         </div>
+        <div class="form-group" style="margin-top: 30px;margin-bottom: 30px">
+            <label for="series">시리즈선택</label>
+            <select id="series" name="seriesId" class="form-control select">
+            </select>
+        </div>
         <textarea name="boardContent" id="content" th:text="${board.boardContent}"></textarea>
 
         <input type="submit" th:value="저장" class="btn btn-primary btn-lg">
@@ -74,7 +79,24 @@
                 });
             });
         });
-
+        $.ajax({
+            url:'/board/getSeries',
+            method:'GET',
+            success:function(result){
+                console.log(result);
+                let getSeries = $("#series");
+                getSeries.empty();
+                $.each(result, function(index, series) {
+                    let option = $("<option></option>")
+                        .attr("value" , series.seriesId)
+                        .text(series.seriesTitle);
+                    getSeries.append(option);
+                })
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
     </script>
 </div>
 </body>

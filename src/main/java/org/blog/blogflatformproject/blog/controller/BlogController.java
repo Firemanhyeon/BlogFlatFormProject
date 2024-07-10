@@ -1,10 +1,13 @@
 package org.blog.blogflatformproject.blog.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
+import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.service.SeriesService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.Follow;
 import org.blog.blogflatformproject.user.domain.User;
@@ -19,6 +22,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/blog")
 @RequiredArgsConstructor
+@Slf4j
 public class BlogController {
 
     private final BlogService blogService;
@@ -26,6 +30,7 @@ public class BlogController {
     private final BoardService boardService;
     private final JwtTokenizer jwtTokenizer;
     private final FollowService followService;
+    private final SeriesService seriesService;
 
     //블로그이동
     @GetMapping("/{username}")
@@ -53,6 +58,7 @@ public class BlogController {
             model.addAttribute("userImg",userImage);
             model.addAttribute("username" , user.getUsername());
             model.addAttribute("isFollow",isFollow);
+            model.addAttribute("series",blog.getSeries());
             return "pages/blog/blog";
         }else{
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
@@ -66,6 +72,7 @@ public class BlogController {
             return "redirect:/user/loginform";
         }
         Blog blog  = blogService.findByUsername(username);
+
         User user = userService.findByUserName(username);
         String userImage = user.getImagePath();
         boolean isFollow=false;
@@ -76,6 +83,7 @@ public class BlogController {
             model.addAttribute("userImg",userImage);
             model.addAttribute("username" , user.getUsername());
             model.addAttribute("isFollow",isFollow);
+            model.addAttribute("series",blog.getSeries());
             return "pages/blog/blog";
         }else{
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
@@ -108,5 +116,21 @@ public class BlogController {
         model.addAttribute("user" , user);
         model.addAttribute("blog", blog);
         return "pages/user/userSetting";
+    }
+
+    //시리즈 만들기 페이지이동
+    @GetMapping("/addSeriesForm")
+    public String addSeriesForm(){
+        return "pages/blog/seriesForm";
+    }
+    //시리즈등록
+    @PostMapping("/addseries")
+    public String addSeries(@RequestParam("seriesTitle") String seriesTitle,
+                            @CookieValue(value="username" , defaultValue = "") String username ){
+        Series series = seriesService.addSeries(seriesTitle,username);
+        if(series.getSeriesId()!=null){
+            return "redirect:/blog/mypage";
+        }
+        return "redirect:/blog/addSeriesForm";
     }
 }
