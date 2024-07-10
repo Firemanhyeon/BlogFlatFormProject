@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
+import org.blog.blogflatformproject.board.domain.Like;
 import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
 import org.blog.blogflatformproject.board.dto.SeriesDto;
 import org.blog.blogflatformproject.board.repository.ReplyRepository;
 import org.blog.blogflatformproject.board.service.BoardService;
+import org.blog.blogflatformproject.board.service.LikeService;
 import org.blog.blogflatformproject.board.service.ReplyService;
 import org.blog.blogflatformproject.board.service.SeriesService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
@@ -40,6 +42,7 @@ public class BoardRestController {
     private final JwtTokenizer jwtTokenizer;
     private final BlogService blogService;
     private final SeriesService seriesService;
+    private final LikeService likeService;
 
     @PutMapping("/updateboard")
     public ResponseEntity<String> updateBoard(@ModelAttribute Board board,
@@ -116,5 +119,35 @@ public class BoardRestController {
     @GetMapping("/getSeries")
     public List<SeriesDto> getSeries(@CookieValue(value="username" , defaultValue = "") String username){
         return seriesService.getSeries(username);
+    }
+
+    //접속한유저가 해당게시글에 좋아요를 눌렀는지 안눌렀는지 확인
+    @GetMapping("/checkLike")
+    public ResponseEntity checkLike(@RequestParam("boardId") Long boardId,
+                                    @CookieValue(value="accessToken" , defaultValue = "") String accessTokenToken){
+
+        Long userId =jwtTokenizer.getUserIdFromToken(accessTokenToken);
+        Like like = likeService.findByBoardAndUser(boardId,userId);
+        if(like!=null){
+            return new ResponseEntity(like.getLikeId(),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null,HttpStatus.OK);
+    }
+    //좋아요 등록
+    @PostMapping("/addLike")
+    public ResponseEntity addLike(@RequestParam("boardId") Long boardId,
+                                  @CookieValue(value ="accessToken") String accessToken){
+        Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
+        Like like = likeService.addLike(boardId,userId);
+        return new ResponseEntity(like.getLikeId(),HttpStatus.OK);
+    }
+
+    //좋아요해제
+    @DeleteMapping("/removeLike")
+    public void removeLike(@RequestParam("boardId") Long boardId,
+                                     @CookieValue(value ="accessToken") String accessToken){
+        System.out.println("111111111");
+        Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
+        likeService.removeLike(boardId,userId);
     }
 }

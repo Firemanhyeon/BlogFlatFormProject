@@ -17,6 +17,7 @@ public class BoardDTO {
     private Long blogId;
     private LocalDate createAt;
     private String firstImagePath;
+    private int visitCount;
 
     private String userImgPath;
     private String userName;

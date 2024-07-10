@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category,Long> {
-    public List<Category> findByPreCategoryIsNull();
-    public List<Category> findByPreCategory(Long id);
+    List<Category> findByPreCategoryIsNull();
+    List<Category> findByPreCategory(Long id);
 }

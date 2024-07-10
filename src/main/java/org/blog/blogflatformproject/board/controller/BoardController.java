@@ -106,7 +106,7 @@ public class BoardController {
     public String getBoardInfo(@PathVariable("boardId") Long boardId , Model model,
                                @RequestParam(value = "page", defaultValue = "0") int page,
                                @RequestParam(value = "size", defaultValue = "5") int size,
-                                @CookieValue(value = "accessToken") String accessToken){
+                                @CookieValue(value = "accessToken",required = false) String accessToken){
 
         Board brd = boardService.findById(boardId);
         //해당글의 유저 가져오기
@@ -126,7 +126,6 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ReplyDto> replies = replyService.getReplies(brd.getBoardId(),pageable);
 
-        log.info("content:{}", replies.getContent());
         dto.setBoardContent(brd.getBoardContent());
         dto.setBoardTitle(brd.getBoardTitle());
         dto.setBlogName(brd.getBlog().getBlogName());
@@ -135,6 +134,7 @@ public class BoardController {
         dto.setCreateAt(brd.getCreateAt());
         dto.setUserImgPath(user.getImagePath());
         dto.setUserName(user.getUsername());
+        dto.setVisitCount(brd.getVisitCount());
 
         model.addAttribute("board" , dto);
         model.addAttribute("tags" , set);

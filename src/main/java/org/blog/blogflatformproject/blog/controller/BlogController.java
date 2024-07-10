@@ -35,7 +35,7 @@ public class BlogController {
     //블로그이동
     @GetMapping("/{username}")
     public String goBlog(@PathVariable("username") String username, Model model,
-                         @CookieValue(value = "accessToken" , defaultValue = "") String accessToken){
+                         @CookieValue(value = "accessToken" , defaultValue = "" , required = false) String accessToken){
         if(username.isEmpty()){
             return "redirect:/user/loginform";
         }
@@ -43,22 +43,23 @@ public class BlogController {
         User user = userService.findByUserName(username);
         String userImage = user.getImagePath();
         //팔로우 했는지 안했는지 확인
-
-        boolean isFollow;
-        if(followService.chkFollow(user,userService.findByUserId(jwtTokenizer.getUserIdFromToken(accessToken)))){
-            isFollow=true;
-        }else{
-            isFollow=false;
+        boolean isFollow = false; // 초기값을 false로 설정
+        boolean isLogin = false;
+        if (!accessToken.isEmpty()) { // accessToken이 비어 있지 않은 경우에만 팔로우 확인
+            if (followService.chkFollow(user, userService.findByUserId(jwtTokenizer.getUserIdFromToken(accessToken)))) {
+                isFollow = true;
+                isLogin= true;
+            }
         }
-
         List<Board> board = boardService.findByUsername(username);
         if(blog!=null){
             model.addAttribute("boardList" , board);
             model.addAttribute("blog" , blog);
             model.addAttribute("userImg",userImage);
             model.addAttribute("username" , user.getUsername());
-            model.addAttribute("isFollow",isFollow);
             model.addAttribute("series",blog.getSeries());
+            model.addAttribute("isFollow",isFollow);
+            model.addAttribute("isLogin" , isLogin);
             return "pages/blog/blog";
         }else{
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
@@ -110,7 +111,6 @@ public class BlogController {
     @GetMapping("/settings")
     public String myBlogSetting(@CookieValue(value="username" , defaultValue = "") String username , Model model ){
         //해당유저의 설정페이지로 이동하기
-        System.out.println("설정페이지이동");
         User user = userService.findByUserName(username);
         Blog blog = blogService.findByUsername(username);
         model.addAttribute("user" , user);

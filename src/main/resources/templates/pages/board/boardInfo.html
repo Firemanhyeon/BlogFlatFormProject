@@ -60,6 +60,7 @@
 <div layout:fragment="content">
     <div id="blog-container">
         <h1 id="blog-title" th:text="${board.boardTitle}">boardTitle</h1>
+        <p  th:text="'조회수 '+${board.visitCount}"></p>
         <input type="hidden" th:value="${board.blogId}" id="blogId">
 
 
@@ -74,8 +75,8 @@
 
         </div>
 
-        <i class="bi bi-chat-square-heart" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
-        <i class="bi bi-chat-square-heart-fill" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
+        <i class="bi bi-chat-square-heart"  id="likeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
+        <i class="bi bi-chat-square-heart-fill" id="unLikeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;display: none;"></i>
         <hr>
         <div id="profile" class="profile">
             <img th:src="@{${board.userImgPath}}" alt="Profile Image" class="profile-image" id="profile-image">
@@ -91,21 +92,6 @@
                 <button id="comment-submit">댓글 작성</button>
             </div>
             <div id="comments-list">
-<!--                    <div class="comment-footer">-->
-<!--                        <span class="comment-replies-toggle">2개의 답글</span>-->
-<!--                    </div>-->
-<!--                    <div class="comment-replies">-->
-<!--                        <div class="reply">-->
-<!--                            <div class="comment-header">-->
-<!--                                <img src="path_to_profile_image" alt="프로필 이미지" class="comment-profile-img">-->
-<!--                                <span class="comment-username">ShinJuYong</span>-->
-<!--                                <span class="comment-time">5일 전</span>-->
-<!--                            </div>-->
-<!--                            <div class="comment-body">-->
-<!--                                <p>대댓글</p>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
             </div>
         </div>
         <!-- Pagination -->
@@ -228,7 +214,6 @@
                 },
                 success:function(result){
                     let commentContainer = $('#comment-' + result[0].preReplyId);
-                    console.log(commentContainer);
                     commentContainer.empty();
                     // 각 답글을 댓글 컨테이너에 추가합니다
                     result.forEach(function (reply) {
@@ -289,6 +274,8 @@
                             </div>`;
                         $('#comments-list').append(commentHtml);
                     });
+
+
                     // 페이지네이션 업데이트
                     $('.pagination').empty();
                     let paginationHtml = `
@@ -312,7 +299,34 @@
                 }
             });
         }
+        let likeBtn = document.getElementById('likeBtn');
+        let unLikeBtn = document.getElementById('unLikeBtn');
+        //좋아요체크
+        function checkLike(){
 
+            $.ajax({
+                url:'/board/checkLike',
+                method:'GET',
+                data:{
+                    boardId:boardId
+                },
+                success:function(result){
+                    //이미 좋아요를 한경우
+                    if (result>0){
+                        likeBtn.style.display = 'none';
+                        unLikeBtn.style.display = 'inline';
+                    }
+                    //좋아요하지않은경우
+                    else{
+                        likeBtn.style.display = 'inline';
+                        unLikeBtn.style.display = 'none';
+                    }
+                },
+                error:function(err){
+                    console.log(err);
+                }
+            })
+        }
         //댓글등록
         $('#comment-submit').click(function(){
             let value = $('#comment-input').val();
@@ -329,7 +343,6 @@
                     boardId:boardId
                 },
                 success:function(result){
-                    console.log(result);
                     $('#comment-input').val('');
                     fetchComments();
                 },
@@ -338,7 +351,47 @@
                 }
             })
         })
+        //좋아요
+        $('#likeBtn').click(function(){
+            $.ajax({
+                url:'/board/addLike',
+                method:'POST',
+                data:{
+                    boardId:boardId
+                },
+                success:function(result){
+                    likeBtn.style.display = 'none';
+                    unLikeBtn.style.display = 'inline';
+                },
+                error:function(err){
+                    console.log(err)
+                }
+            })
+            console.log('좋아요');
+        })
+
+        //좋아요해제
+        $('#unLikeBtn').click(function(){
+            $.ajax({
+                url:'/board/removeLike',
+                method:'DELETE',
+                data:{
+                    boardId:boardId
+                },
+                success:function(result){
+                    likeBtn.style.display = 'inline';
+                    unLikeBtn.style.display = 'none';
+                },
+                error:function(err){
+                    console.log(err)
+                }
+            })
+        })
         fetchComments(0);
+        checkLike();
+
+
+
     </script>
 </div>
 </body>

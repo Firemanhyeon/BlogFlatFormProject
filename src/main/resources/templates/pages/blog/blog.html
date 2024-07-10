@@ -136,6 +136,7 @@
 <script>
 $(document).ready(function(){
     let followCheck =  [[${isFollow}]];
+    let isLogin = [[${isLogin}]]
     let blogUserName = $('#blogUserName').val();
 
     function getCookie(name) {
@@ -150,15 +151,15 @@ $(document).ready(function(){
     }
     let nowUserName = getCookie("username");
 
-    if(followCheck){
+    if(followCheck && isLogin){
         $('#followBtn').hide();
         $('#unfollowBtn').show();
     }
-    else{
+    else if(!followCheck && isLogin){
         $('#unfollowBtn').hide();
         $('#followBtn').show();
     }
-    if(blogUserName == nowUserName){
+    if(blogUserName == nowUserName || !isLogin){
         $('#followBtn').hide();
         $('#unfollowBtn').hide();
     }
