@@ -1,11 +1,16 @@
 package org.blog.blogflatformproject.board.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.repository.BlogRepository;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Tag;
+import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.repository.BoardRepository;
+import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
+import org.blog.blogflatformproject.user.domain.User;
+import org.blog.blogflatformproject.user.repository.UserRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,16 +20,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoardService {
         private final BoardRepository boardRepository;
         private final BlogRepository blogRepository;
+        private final JwtTokenizer jwtTokenizer;
+    private final UserRepository userRepository;
 
-        //최근날짜별로 boardList가져오기
+    //최근날짜별로 boardList가져오기
         public List<Board> getBoardListOrderByCreatedAt(){
             return boardRepository.findAllOrderByCreateAtDesc();
         }
@@ -62,7 +71,7 @@ public class BoardService {
         //해당유저의 글찾기
         public List<Board> findByUsername(String username){
             Blog blog = blogRepository.findByUser_Username(username);
-            return boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrue(blog);
+            return boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtAsc(blog);
         }
 
 
@@ -110,6 +119,82 @@ public class BoardService {
     @Transactional
     public void updateVisitCnt(Board brd){
             boardRepository.updateVisitCnt(brd.getBoardId());
+    }
+
+    //조건별 board 리스트 불러오기
+    public List<BoardDTO> selectVal(int selectVal){
+            List<Board> brd = new ArrayList<>();
+       switch (selectVal){
+           //최근날짜별
+           case 1:
+               brd=boardRepository.findAllOrderByCreateAtDesc();
+               break;
+           case 2:
+                brd=boardRepository.findAllByOpenYnAndTemporaryYnOrderByLikes();
+               break;
+           case 3:
+                brd=boardRepository.findAllByOpenYnTrueAndTemporaryYnTrueOrderByVisitCountDesc();
+                break;
+       }
+       List<BoardDTO> list = new ArrayList<>();
+       for(Board board : brd){
+           BoardDTO dto = new BoardDTO();
+           dto.setBoardId(board.getBoardId());
+           dto.setBoardTitle(board.getBoardTitle());
+           dto.setFirstImagePath(board.getFirstImagePath());
+           dto.setVisitCount(board.getVisitCount());
+           list.add(dto);
+       }
+       return list;
+    }
+
+
+    //해당블로그 조건별 board 리스트 불러오기
+    public List<BoardDTO> mySelectVal(int selectVal , String username){
+
+        Blog blog = blogRepository.findByUser_Username(username);
+
+        List<Board> brd = new ArrayList<>();
+        switch (selectVal){
+            //최근날짜별
+            case 1:
+                brd=boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtAsc(blog);
+                break;
+            //좋아요별
+            case 2:
+                brd=boardRepository.findAllByOpenYnAndTemporaryYnAndBlogOrderByLikes(blog);
+                break;
+            //조회수별
+            case 3:
+                brd=boardRepository.findAllByOpenYnTrueAndTemporaryYnTrueAndBlogOrderByVisitCountDesc(blog);
+                break;
+        }
+        List<BoardDTO> list = new ArrayList<>();
+        for(Board board : brd){
+            BoardDTO dto = new BoardDTO();
+            dto.setBoardId(board.getBoardId());
+            dto.setBoardTitle(board.getBoardTitle());
+            dto.setFirstImagePath(board.getFirstImagePath());
+            dto.setVisitCount(board.getVisitCount());
+            list.add(dto);
+        }
+        log.info("list:{}",list);
+        return list;
+    }
+
+    //비공개글 및 임시글 가져오기
+    public List<BoardDTO> getTemporaryAndOpenList(String username){
+            Blog blog = blogRepository.findByUser_Username(username);
+        List<Board> boards = boardRepository.findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtAsc(blog);
+        List<BoardDTO> dtos = new ArrayList<>();
+        for(Board board : boards){
+            BoardDTO dto = new BoardDTO();
+            dto.setBoardId(board.getBoardId());
+            dto.setBoardTitle(board.getBoardTitle());
+            dto.setFirstImagePath(board.getFirstImagePath());
+            dtos.add(dto);
+        }
+        return dtos;
     }
 
 }

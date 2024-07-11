@@ -5,16 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
-import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.domain.Reply;
+import org.blog.blogflatformproject.board.domain.*;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
-import org.blog.blogflatformproject.board.domain.CKEditorUploadResponse;
-import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
-import org.blog.blogflatformproject.board.service.BoardService;
-import org.blog.blogflatformproject.board.service.ReplyService;
-import org.blog.blogflatformproject.board.service.SeriesService;
-import org.blog.blogflatformproject.board.service.TagService;
+import org.blog.blogflatformproject.board.service.*;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
@@ -26,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -47,6 +42,7 @@ public class BoardController {
     private final JwtTokenizer jwtTokenizer;
     private final ReplyService replyService;
     private final SeriesService seriesService;
+    private final ViewsService viewsService;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -113,13 +109,18 @@ public class BoardController {
         Long userId = brd.getBlog().getUser().getUserId();
         if(accessToken!=null){
             Long myId = jwtTokenizer.getUserIdFromToken(accessToken);
+
+            //읽은 게시글 저장
+            viewsService.saveView(boardId,myId);
+
+            //자기자신일때는 조회수 증가 안됨.
             if(userId!=myId){
+                //
                 boardService.updateVisitCnt(brd);
             }
         }
-
-        //log.info("userid:{}",userId);
         User user = userService.findByUserId(userId);
+
         BoardDTO dto = new BoardDTO();
         Set<Tag> set = brd.getTags();
         //해당글의 댓글 가져오기
@@ -178,14 +179,39 @@ public class BoardController {
         Set<Board> brd = seriesService.findById(seriesId).getBoard();
         Set<BoardDTO> dto = new HashSet<>();
         for(Board board : brd){
-            BoardDTO boardDTO = new BoardDTO();
-            boardDTO.setBoardId(board.getBoardId());
-            boardDTO.setBoardTitle(board.getBoardTitle());
-            boardDTO.setFirstImagePath(board.getFirstImagePath());
-            dto.add(boardDTO);
+            if(board.isTemporaryYn() && board.isOpenYn()){
+                BoardDTO boardDTO = new BoardDTO();
+                boardDTO.setBoardId(board.getBoardId());
+                boardDTO.setBoardTitle(board.getBoardTitle());
+                boardDTO.setFirstImagePath(board.getFirstImagePath());
+                dto.add(boardDTO);
+            }
         }
         model.addAttribute("board" , dto);
         return "pages/board/seriesInfo";
+    }
+
+    //임시글 및 비공개 글 목록 페이지 이동
+    @GetMapping("/temporary")
+    public String getTemporary(@CookieValue(value="accessToken" , defaultValue = "") String accessToken , Model model){
+
+        Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
+        User user = userService.findByUserId(userId);
+        List<BoardDTO> list = boardService.getTemporaryAndOpenList(user.getUsername());
+        log.info("list:{}",list);
+        model.addAttribute("board", list);
+        return "pages/board/temporaryInfo";
+    }
+
+    //내가 읽은 게시글 보기
+    @GetMapping("/readBoard")
+    public String readBoard(@CookieValue(value="accessToken" , defaultValue = "" , required = false) String accessToken,
+                            Model model){
+
+        Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
+        List<BoardDTO> list = viewsService.findByUserId(userId);
+        model.addAttribute("board" , list);
+        return "pages/board/readMyBoard";
     }
 
 }

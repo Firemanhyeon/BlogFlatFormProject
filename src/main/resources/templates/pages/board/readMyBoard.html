@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #series-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #series-title {
+            color: #1abc9c; /* Green color */
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-position: under;
+            margin-bottom: 10px;
+        }
+
+        #series-content {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333; /* Dark grey color */
+        }
+
+        #series-divider {
+            width: 80%;
+            border: 1px solid #ddd;
+            margin: 20px auto;
+        }
+
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div id="series-container">
+        <h1 id="series-title">내가 읽은 글</h1>
+        <h2 id="series-content">목록</h2>
+        <hr id="series-divider">
+    </div>
+    <div id="posts-content">
+        <section class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    <div th:each="board:${board}" class="col mb-5" >
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            <img th:if="${board.firstImagePath!=null}" class="card-img-top" th:src="${board.firstImagePath}" alt="..."  />
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 th:text="${board.boardTitle}" class="fw-bolder"></h5>
+                                    <!-- Product price-->
+                                    태그
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <a class="btn btn-outline-dark mt-auto" th:href="@{/board/boardInfo/{boardId}(boardId=${board.boardId})}">자세히 보기</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>

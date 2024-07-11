@@ -1,10 +1,10 @@
 package org.blog.blogflatformproject.user.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.board.domain.Like;
+import org.blog.blogflatformproject.board.domain.Views;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -61,9 +61,6 @@ public class User {
 
     @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL)
     private Blog blog;
-
-    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
-    private Views views;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
     private Set<Like> likes;

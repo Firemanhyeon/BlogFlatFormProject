@@ -7,6 +7,7 @@ import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Like;
 import org.blog.blogflatformproject.board.domain.Reply;
+import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
 import org.blog.blogflatformproject.board.dto.SeriesDto;
 import org.blog.blogflatformproject.board.repository.ReplyRepository;
@@ -146,8 +147,21 @@ public class BoardRestController {
     @DeleteMapping("/removeLike")
     public void removeLike(@RequestParam("boardId") Long boardId,
                                      @CookieValue(value ="accessToken") String accessToken){
-        System.out.println("111111111");
         Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
         likeService.removeLike(boardId,userId);
+    }
+
+    //조건별 정렬 board가져오기
+    @GetMapping("/selectVal")
+    public List<BoardDTO> selectVal(@RequestParam("selectVal") int selectVal){
+
+        return boardService.selectVal(selectVal);
+    }
+
+    //해당블로그 조건별 정렬 board가져오기
+    @GetMapping("/mySelectVal")
+    public List<BoardDTO> mySelectVal(@RequestParam("selectVal") int selectVal,
+                                      @RequestParam("username") String username){
+        return boardService.mySelectVal(selectVal,username);
     }
 }

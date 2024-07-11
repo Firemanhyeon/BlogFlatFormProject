@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.repository.BlogRepository;
+import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.dto.SeriesDto;
 import org.blog.blogflatformproject.board.repository.SeriesRepository;
 import org.springframework.stereotype.Service;

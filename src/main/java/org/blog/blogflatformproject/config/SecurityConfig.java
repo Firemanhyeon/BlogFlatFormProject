@@ -33,7 +33,9 @@ public class SecurityConfig {
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/", "/user/loginform", "/user/signInForm", "/board/boardInfo/**", "/blog/**", "/api/user/duplicateChk",
                                 "/user/userreg", "/user/login","/login", "/user/welcome", "/css/**", "/js/**","/Users/jeonghohyeon/Desktop/blogUserImage/**"
-                                ,"/api/user/login","/api/user/getUser","/api/user/updatename","/user/logout","/board/boardInfo/**","/board/getReplies","/api/user/getFollowCnt","/api/user/getFollowingCnt","/board/getSeriesInfo/**").permitAll()
+                                ,"/api/user/login","/api/user/getUser","/api/user/updatename","/user/logout","/board/boardInfo/**"
+                                ,"/board/getReplies","/api/user/getFollowCnt","/api/user/getFollowingCnt","/board/getSeriesInfo/**"
+                                ,"/board/selectVal","board/mySelectVal").permitAll()
                         .anyRequest()
                         .authenticated()
                 )

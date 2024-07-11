@@ -75,8 +75,8 @@
 
         </div>
 
-        <i class="bi bi-chat-square-heart"  id="likeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
-        <i class="bi bi-chat-square-heart-fill" id="unLikeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;display: none;"></i>
+        <i class="bi bi-heart"  id="likeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;"></i>
+        <i class="bi bi-heart-fill" id="unLikeBtn" th:if="${accessToken!=null}" style="font-size: 2rem; cursor: pointer;display: none; color: red"></i>
         <hr>
         <div id="profile" class="profile">
             <img th:src="@{${board.userImgPath}}" alt="Profile Image" class="profile-image" id="profile-image">
@@ -195,7 +195,7 @@
                     boardId:boardId
                 }),
                 success:function(result){
-                    console.log(result);
+                    $('#recommentInput-'+result.preReplyId).val('');
                 },
                 error:function(err){
                     console.log(err);
@@ -218,14 +218,15 @@
                     // 각 답글을 댓글 컨테이너에 추가합니다
                     result.forEach(function (reply) {
                         let replyHtml = `
-                    <div class="reply">
+                    <div class="reply" style="margin-left: 30px">
                         <div class="recomment">
                             <div class="comment-header">
+                                <p>↳&nbsp&nbsp&nbsp</p>
                                 <img src="${reply.userImgPath}" alt="프로필 이미지" class="comment-profile-img">
                                 <a class="comment-username">${reply.username}</a>
                             </div>
                             <div class="comment-body">
-                                <p>${reply.replyContent}</p>
+                                <p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp${reply.replyContent}</p>
                             </div>
                         </div>
                     </div>`;

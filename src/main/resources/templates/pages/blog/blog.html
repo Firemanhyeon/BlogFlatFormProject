@@ -44,6 +44,7 @@
             <div class="profile-info">
                 <h2 id="profile-name" th:text="${blog.blogName}">블로그이름</h2>
                 <input type="hidden" th:value="${username}" id="blogUserName">
+                <input type="hidden" th:value="${isLogin}" id="isLogin">
                 <div class="follow-info" id="followInfo">
                     <span id="follower-count"></span>
                     <span id="following-count"></span>
@@ -59,18 +60,19 @@
             </ul>
         </nav>
         <div id="content" class="content">
-            <div style="width: 300px; margin: 0 auto ; margin-top: 30px">
-                <select class="form-select" aria-label="Default select example">
-                    <option value="1">최근날짜별</option>
-                    <option value="2">좋아요순</option>
-                    <option value="3">조회수높은순</option>
-                </select>
-            </div>
+
 <!--       내 글 섹션   -->
             <div id="posts-content">
+                <div style="width: 300px; margin: 0 auto ; margin-top: 30px">
+                    <select class="form-select" aria-label="Default select example" id="orderSelect">
+                        <option value="1" >최근날짜별</option>
+                        <option value="2">좋아요순</option>
+                        <option value="3">조회수높은순</option>
+                    </select>
+                </div>
                 <section class="py-5">
                     <div class="container px-4 px-lg-5 mt-5">
-                        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" id="boardContainer">
                             <div th:each="board:${boardList}" class="col mb-5" >
                                 <div class="card h-100">
                                     <!-- Product image-->
@@ -136,7 +138,8 @@
 <script>
 $(document).ready(function(){
     let followCheck =  [[${isFollow}]];
-    let isLogin = [[${isLogin}]]
+    let isLogin = $('#isLogin').val();
+
     let blogUserName = $('#blogUserName').val();
 
     function getCookie(name) {
@@ -237,8 +240,73 @@ $(document).ready(function(){
     }
     countFollow();
     countFollowing();
+
+
+    $('#orderSelect').val(1);
+    function updateBoardList(boards) {
+        let container = $('#boardContainer');
+        container.empty(); // 기존 내용을 지웁니다.
+
+        boards.forEach(board => {
+            let imageHtml = board.firstImagePath
+                ? `<img class="card-img-top" src="${board.firstImagePath}" alt="...">`
+                : `<img class="card-img-top">`;
+
+            let boardHtml = `
+                        <div class="col mb-5">
+                            <div class="card h-100">
+                                <!-- Product image-->
+                                <div>
+                                    ${imageHtml}
+                                </div>
+                                <!-- Product details-->
+                                <div class="card-body p-4">
+                                    <div class="text-center">
+                                        <!-- Product name-->
+                                        <h5 class="fw-bolder">${board.boardTitle}</h5>
+                                        <!-- Product price-->
+                                        태그
+                                    </div>
+                                </div>
+                                <!-- Product actions-->
+                                <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                    <div class="text-center">
+                                        <a class="btn btn-outline-dark mt-auto" href="/board/boardInfo/${board.boardId}">자세히 보기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+            container.append(boardHtml);
+        });
+    }
+
+    $('#orderSelect').change(function(){
+        let selectVal = $('#orderSelect').val();
+        $.ajax({
+            url:'/board/mySelectVal',
+            method:'GET',
+            data:{
+                selectVal:selectVal,
+                username: blogUserName
+            },
+            success:function(result){
+                console.log(result);
+                updateBoardList(result);
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+    })
+
 })
+
+
+
+
+
 </script>
+
 </div>
 </body>
 </html>

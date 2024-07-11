@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.domain.Series;
-import org.blog.blogflatformproject.user.domain.Views;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -46,8 +45,7 @@ public class Board {
     @JoinColumn(name = "blog_id")
     private Blog blog;
 
-    @OneToOne(mappedBy = "board")
-    private Views views;
+
 
 
     @ManyToOne

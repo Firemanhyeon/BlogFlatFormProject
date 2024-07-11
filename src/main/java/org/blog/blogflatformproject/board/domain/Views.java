@@ -1,11 +1,8 @@
-package org.blog.blogflatformproject.user.domain;
+package org.blog.blogflatformproject.board.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.blog.blogflatformproject.board.domain.Board;
+import lombok.*;
+import org.blog.blogflatformproject.user.domain.User;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Views {
 
     @Id
@@ -25,12 +23,12 @@ public class Views {
     @Column(name="view_created")
     private LocalDateTime viewCreated;
 
-    @OneToOne
-    @JoinColumn(name = "user_id" , unique = true)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "board_id" ,unique = true)
+    @ManyToOne
+    @JoinColumn(name = "board_id")
     private Board board;
 
 

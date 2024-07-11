@@ -45,6 +45,7 @@ public class BlogController {
         //팔로우 했는지 안했는지 확인
         boolean isFollow = false; // 초기값을 false로 설정
         boolean isLogin = false;
+
         if (!accessToken.isEmpty()) { // accessToken이 비어 있지 않은 경우에만 팔로우 확인
             if (followService.chkFollow(user, userService.findByUserId(jwtTokenizer.getUserIdFromToken(accessToken)))) {
                 isFollow = true;
@@ -117,6 +118,7 @@ public class BlogController {
         model.addAttribute("blog", blog);
         return "pages/user/userSetting";
     }
+
 
     //시리즈 만들기 페이지이동
     @GetMapping("/addSeriesForm")
