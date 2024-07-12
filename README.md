@@ -25,7 +25,9 @@
   <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
   <br>
 </div>
-## 데이터베이스 구조
+
+# 데이터베이스 구조
+
 ```sql
 CREATE TABLE `user` (
                         `user_id` BIGINT NOT NULL AUTO_INCREMENT,
