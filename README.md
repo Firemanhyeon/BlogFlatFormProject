@@ -1,3 +1,178 @@
+<div align=center><h1>📚 STACKS</h1></div>
+
+<div align=center> 
+  <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
+  <br>
+  
+  <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> 
+  <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> 
+  <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
+  <img src="https://img.shields.io/badge/jquery-0769AD?style=for-the-badge&logo=jquery&logoColor=white">
+  <br>
+  
+
+  <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> 
+  <br>
+
+  <img src="https://img.shields.io/badge/spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white"> 
+  <img src="https://img.shields.io/badge/bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white">
+  <br>
+
+  <img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=white">
+  <br>
+  
+  <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+  <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+  <br>
+</div>
+
+# 데이터베이스 구조
+
+```sql
+CREATE TABLE `user` (
+                        `user_id` BIGINT NOT NULL AUTO_INCREMENT,
+                        `username` VARCHAR(50) NOT NULL UNIQUE,
+                        `password` VARCHAR(100) NOT NULL,
+                        `name` VARCHAR(100) NOT NULL,
+                        `email` VARCHAR(100) NOT NULL,
+                        `email_status` TINYINT NOT NULL DEFAULT 0,
+                        `registration_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        `image_name` VARCHAR(100) NULL,
+                        `image_path` VARCHAR(100) NULL,
+                        PRIMARY KEY (`user_id`)
+);
+
+CREATE TABLE `role` (
+                        `roles_id` BIGINT NOT NULL AUTO_INCREMENT,
+                        `roles_name` VARCHAR(50) NOT NULL UNIQUE,
+                        PRIMARY KEY (`roles_id`)
+);
+
+CREATE TABLE `user_role` (
+                             `roles_id` BIGINT NOT NULL,
+                             `user_id` BIGINT NOT NULL,
+                             PRIMARY KEY (`roles_id`, `user_id`),
+                             FOREIGN KEY (`roles_id`) REFERENCES `role` (`roles_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                             FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `blog` (
+                        `blog_id` BIGINT NOT NULL AUTO_INCREMENT,
+                        `user_id` BIGINT NULL,
+                        `blog_name` VARCHAR(50) NOT NULL,
+                        `blog_description` VARCHAR(100) NULL,
+                        `blog_registration_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                        PRIMARY KEY (`blog_id`),
+                        FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `board` (
+                         `board_id` BIGINT NOT NULL AUTO_INCREMENT,
+                         `blog_id` BIGINT NOT NULL,
+                         `category_id` BIGINT NOT NULL,
+                         `board_title` VARCHAR(50) NOT NULL,
+                         `board_content` TEXT NOT NULL,
+                         `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                         `temporary_YN` TINYINT NOT NULL DEFAULT 1,
+                         `open_YN` TINYINT NOT NULL DEFAULT 1,
+                         `visit_count` INT NOT NULL DEFAULT 0,
+                         `series_id` BIGINT NULL,
+                         `first_image_path` VARCHAR(100) NULL,
+                         PRIMARY KEY (`board_id`),
+                         FOREIGN KEY (`blog_id`) REFERENCES `blog` (`blog_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                         FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                         FOREIGN KEY (`series_id`) REFERENCES `series` (`series_id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `likes` (
+                         `like_id` BIGINT NOT NULL AUTO_INCREMENT,
+                         `board_id` BIGINT NOT NULL,
+                         `user_id` BIGINT NULL,
+                         PRIMARY KEY (`like_id`),
+                         UNIQUE KEY (`board_id`, `user_id`),
+                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                         FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `category` (
+                        `category_id` BIGINT NOT NULL AUTO_INCREMENT,
+                        `category_name` VARCHAR(50) NOT NULL,
+                        `pre_category` BIGINT NULL,
+                        PRIMARY KEY (`category_id`),
+                        FOREIGN KEY (`pre_category`) REFERENCES `category` (`category_id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `follow` (
+                          `follow_id` BIGINT NOT NULL AUTO_INCREMENT,
+                          `follower_user_id` BIGINT NULL,
+                          `following_user_id` BIGINT NULL,
+                          PRIMARY KEY (`follow_id`),
+                          UNIQUE KEY (`follower_user_id`, `following_user_id`),
+                          FOREIGN KEY (`follower_user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                          FOREIGN KEY (`following_user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `reply` (
+                         `reply_id` BIGINT NOT NULL AUTO_INCREMENT,
+                         `board_id` BIGINT NOT NULL,
+                         `reply_content` VARCHAR(100) NOT NULL,
+                         `reply_created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                         `pre_reply_id` BIGINT NULL,
+                         PRIMARY KEY (`reply_id`),
+                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                         FOREIGN KEY (`pre_reply_id`) REFERENCES `reply` (`reply_id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE `image` (
+                         `image_id` BIGINT NOT NULL AUTO_INCREMENT,
+                         `board_id` BIGINT NOT NULL,
+                         `image_original_name` VARCHAR(255) NOT NULL,
+                         `image_name` VARCHAR(255) NOT NULL,
+                         `image_path` VARCHAR(100) NOT NULL,
+                         PRIMARY KEY (`image_id`),
+                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `series` (
+                          `series_id` BIGINT NOT NULL AUTO_INCREMENT,
+                          `blog_id` BIGINT NOT NULL,
+                          `series_title` VARCHAR(255) NOT NULL,
+                          PRIMARY KEY (`series_id`),
+                          FOREIGN KEY (`blog_id`) REFERENCES `blog` (`blog_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `tag` (
+                       `tag_id` BIGINT NOT NULL AUTO_INCREMENT,
+                       `tag_name` VARCHAR(30) NOT NULL,
+                       PRIMARY KEY (`tag_id`)
+);
+
+CREATE TABLE `tag_board` (
+                             `tag_id` BIGINT NOT NULL,
+                             `board_id` BIGINT NOT NULL,
+                             PRIMARY KEY (`tag_id`, `board_id`),
+                             FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                             FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `views` (
+                         `view_id` BIGINT NOT NULL AUTO_INCREMENT,
+                         `user_id` BIGINT NULL,
+                         `board_id` BIGINT NOT NULL,
+                         `view_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         PRIMARY KEY (`view_id`),
+                         UNIQUE KEY (`user_id`, `board_id`),
+                         FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE refresh_token (
+                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                               user_id BIGINT NOT NULL,
+                               value VARCHAR(255) NOT NULL
+);
+```
+
 # 개인 미션형 프로젝트
 # LikeLion_Blog
 [Techit] 백엔드 스쿨 10기: velog 클론 프로젝트
