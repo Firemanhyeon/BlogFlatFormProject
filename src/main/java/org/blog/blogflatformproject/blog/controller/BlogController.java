@@ -6,10 +6,9 @@ import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
-import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.SeriesService;
+import org.blog.blogflatformproject.board.service.impl.BoardService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
-import org.blog.blogflatformproject.user.domain.Follow;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.FollowService;
 import org.blog.blogflatformproject.user.service.UserService;
@@ -47,10 +46,12 @@ public class BlogController {
         boolean isLogin = false;
 
         if (!accessToken.isEmpty()) { // accessToken이 비어 있지 않은 경우에만 팔로우 확인
+            System.out.println("액세스토큰있음");
             if (followService.chkFollow(user, userService.findByUserId(jwtTokenizer.getUserIdFromToken(accessToken)))) {
+
                 isFollow = true;
-                isLogin= true;
             }
+                isLogin= true;
         }
         List<Board> board = boardService.findByUsername(username);
         if(blog!=null){

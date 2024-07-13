@@ -1,6 +1,5 @@
 package org.blog.blogflatformproject.user.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -14,7 +13,7 @@ import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.dto.UserLoginDto;
 import org.blog.blogflatformproject.user.dto.UserLoginResponseDto;
 import org.blog.blogflatformproject.user.service.FollowService;
-import org.blog.blogflatformproject.user.service.RefreshTokenService;
+import org.blog.blogflatformproject.user.service.impl.RefreshTokenServiceImpl;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +33,7 @@ public class UserRestController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
-    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenServiceImpl refreshTokenServiceImpl;
     private final FollowService followService;
 
     @PostMapping("/login")
@@ -58,22 +57,22 @@ public class UserRestController {
         List<String> roles = user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()); //Role타입의 set에서 role의 이름만 들어있는 list가 필요함
 
         //액세스토큰 확인. 있을 시 해당 액세스토큰에 대한 유저정보 반환.
-        String chkAccessToken = getCookieValue(request, "accessToken");
+        String chkAccessToken = userService.getCookieValue(request, "accessToken");
         if(chkAccessToken != null && jwtTokenizer.validateAccessToken(chkAccessToken)){
             System.out.println("액세스토큰이 있어요");
-            UserLoginResponseDto loginResponse = createLoginResponse(user,chkAccessToken,null);
+            UserLoginResponseDto loginResponse = userService.createLoginResponse(user,chkAccessToken,null);
             return new ResponseEntity(loginResponse,HttpStatus.OK);
         }else{
             //없을 시 리프레시토큰 비교
             System.out.println("액세스토큰이 없어요");
-            String refreshToken = getCookieValue(request,"refreshToken");
+            String refreshToken = userService.getCookieValue(request,"refreshToken");
             //리프레시토큰이 있는경우
             //새로운 액세스 토큰을 생성하고 액세스토큰과 리프레시토큰을 반환.
             if(refreshToken!=null && jwtTokenizer.validateRefreshToken(refreshToken)){
                 System.out.println("리프레시토큰이 있어요");
                 chkAccessToken = jwtTokenizer.createAccessToken(user.getUserId(),user.getEmail(),user.getName(),user.getUsername(),roles);
-                UserLoginResponseDto loginResponse = createLoginResponse(user, chkAccessToken, refreshToken);
-                addCookies(response , chkAccessToken , refreshToken,user);
+                UserLoginResponseDto loginResponse = userService.createLoginResponse(user, chkAccessToken, refreshToken);
+                userService.addCookies(response , chkAccessToken , refreshToken,user);
                 return new ResponseEntity(loginResponse , HttpStatus.OK);
             }else{
                 System.out.println("리프레시토큰이 없어요");
@@ -88,63 +87,18 @@ public class UserRestController {
                 refreshTokenEntity.setValue(refreshToken);
                 refreshTokenEntity.setUserId(user.getUserId());
                 //기존에 저장되어있던 리프레시토큰 삭제
-                refreshTokenService.deleteRefreshToken(user.getUserId());
+                refreshTokenServiceImpl.deleteRefreshToken(user.getUserId());
                 //리프레시토큰 생성
-                refreshTokenService.addRefreshToken(refreshTokenEntity);
+                refreshTokenServiceImpl.addRefreshToken(refreshTokenEntity);
 
-                UserLoginResponseDto loginResponse = createLoginResponse(user,chkAccessToken,refreshToken);
-                addCookies(response , chkAccessToken,refreshToken,user);
+                UserLoginResponseDto loginResponse = userService.createLoginResponse(user,chkAccessToken,refreshToken);
+                userService.addCookies(response , chkAccessToken,refreshToken,user);
 
                 return new ResponseEntity<>(loginResponse, HttpStatus.OK);
             }
         }
     }
 
-    //쿠키 추가 메서드
-    private void addCookies(HttpServletResponse response, String accessToken, String refreshToken,User user) {
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.ACCESS_TOKEN_EXPIRE_COUNT / 1000));
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(Math.toIntExact(JwtTokenizer.REFRESH_TOKEN_EXPIRE_COUT / 1000));
-
-
-        Cookie username = new Cookie("username",user.getUsername());
-        username.setPath("/");
-        username.setMaxAge(Math.toIntExact(JwtTokenizer.ACCESS_TOKEN_EXPIRE_COUNT / 1000));
-
-        response.addCookie(username);
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-    }
-
-// 로그인응답 메서드
-    private UserLoginResponseDto createLoginResponse(User user, String accessToken, String refreshToken) {
-        return UserLoginResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userId(user.getUserId())
-                .userName(user.getUsername())
-                .name(user.getName())
-                .build();
-    }
-
-    //쿠키값 가져오기
-    private String getCookieValue(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     //중복체크
     @GetMapping("/duplicateChk")
@@ -234,6 +188,7 @@ public class UserRestController {
     @PostMapping("/follow")
     public ResponseEntity follow(@RequestParam("follower") String followedUsername, @CookieValue("accessToken") String accessToken){
 
+
         Long followingId = jwtTokenizer.getUserIdFromToken(accessToken);
         Long followedId = userService.findByUserName(followedUsername).getUserId();
         Follow follow = followService.getFollow(followingId,followedId);
@@ -247,10 +202,14 @@ public class UserRestController {
     public void unfollow(@RequestParam("follower") String unfollowedUsername, @CookieValue("accessToken") String accessToken){
         Long followingId = jwtTokenizer.getUserIdFromToken(accessToken);
         Long followedId = userService.findByUserName(unfollowedUsername).getUserId();
+
         if(followingId!=null && followedId!=null){
             followService.getUnfollow(followingId , followedId);
         }
     }
+
+
+
     //팔로우수 불러오기
     @GetMapping("/getFollowCnt")
     public ResponseEntity getFollowerCnt(@RequestParam("blogUserName") String blogUserName){
@@ -263,7 +222,7 @@ public class UserRestController {
     @GetMapping("/getFollowingCnt")
     public ResponseEntity getFollowingCnt(@RequestParam("blogUserName")String blogUserName){
         User user = userService.findByUserName(blogUserName);
-        int follwingCount = followService.getFollwingCnt(user.getUserId());
+        int follwingCount = followService.getFollowingCnt(user.getUserId());
 
         return new ResponseEntity(follwingCount,HttpStatus.OK);
     }

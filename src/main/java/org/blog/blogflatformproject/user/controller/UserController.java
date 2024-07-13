@@ -38,11 +38,8 @@ public class UserController {
             user.setImagePath(dto.getImagePath());
             user.setImageName(dto.getImageName());
         }
-
-
         //회원가입
         User user1 = userService.regUser(user);
-
         //회원가입이 완료됐다면
         if(user1.getUserId()!=null){
             return "redirect:/user/welcome";
@@ -50,26 +47,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("message" , "회원등록에 실패했습니다.");
             return "redirect:/user/error";
         }
-
     }
-    //로그인 구현
-//    @PostMapping("/login")
-//    public String login(@ModelAttribute User user , HttpServletResponse response , RedirectAttributes redirectAttributes){
-//        User user1 = userService.login(user);
-//        System.out.println(user1);
-//
-//        if(user1!=null){
-//            System.out.println("로그인완료");
-//            Cookie cookie = new Cookie("userId" , user1.getUserId().toString());
-//            cookie.setPath("/");
-//            response.addCookie(cookie);
-//            return "redirect:/blog/"+user1.getUserId();
-//        }else{
-//            System.out.println("로그인실패");
-//            redirectAttributes.addFlashAttribute("message", "로그인실패");
-//            return "redirect:/user/error";
-//        }
-//    }
     //웰컴페이지이동
     @GetMapping("/welcome")
     public String goWelcomePage(){
@@ -85,35 +63,15 @@ public class UserController {
     //로그아웃
     @GetMapping("/logout")
     public String logOut(HttpServletResponse response){
-        System.out.println("로그아웃");
-        deleteCookie(response);
+        userService.deleteCookie(response);
         return "redirect:/";
     }
-
-    public void deleteCookie(HttpServletResponse response){
-        Cookie cookie = new Cookie("username" , null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-
-        Cookie accessToken = new Cookie("accessToken" , null);
-        accessToken.setMaxAge(0);
-        accessToken.setPath("/");
-
-        Cookie refreshToken = new Cookie("refreshToken",null);
-        refreshToken.setMaxAge(0);
-        refreshToken.setPath("/");
-
-        response.addCookie(refreshToken);
-        response.addCookie(cookie);
-        response.addCookie(accessToken);
-    }
-
     //회원탈퇴
     @PostMapping("/deleteUser")
     public String deleteUser(@CookieValue("username") String username,
                              HttpServletResponse response){
         userService.deleteUser(username);
-        deleteCookie(response);
+        userService.deleteCookie(response);
         return "redirect:/";
     }
 }

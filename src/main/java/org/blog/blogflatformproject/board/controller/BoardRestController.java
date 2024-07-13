@@ -2,7 +2,6 @@ package org.blog.blogflatformproject.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.blog.blogflatformproject.blog.domain.Series;
 import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Like;
@@ -10,11 +9,10 @@ import org.blog.blogflatformproject.board.domain.Reply;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
 import org.blog.blogflatformproject.board.dto.SeriesDto;
-import org.blog.blogflatformproject.board.repository.ReplyRepository;
-import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.LikeService;
 import org.blog.blogflatformproject.board.service.ReplyService;
 import org.blog.blogflatformproject.board.service.SeriesService;
+import org.blog.blogflatformproject.board.service.impl.BoardService;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
@@ -25,9 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/board")
@@ -41,7 +37,6 @@ public class BoardRestController {
     private final ReplyService replyService;
     private final UserService userService;
     private final JwtTokenizer jwtTokenizer;
-    private final BlogService blogService;
     private final SeriesService seriesService;
     private final LikeService likeService;
 

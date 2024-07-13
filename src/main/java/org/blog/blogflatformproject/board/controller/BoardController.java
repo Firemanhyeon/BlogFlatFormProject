@@ -20,7 +20,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class BoardController {
     private final JwtTokenizer jwtTokenizer;
     private final ReplyService replyService;
     private final SeriesService seriesService;
-    private final ViewsService viewsService;
+    private final ViewService viewService;
 
     //글등록 폼으로 이동
     @GetMapping("/boardform")
@@ -111,11 +110,10 @@ public class BoardController {
             Long myId = jwtTokenizer.getUserIdFromToken(accessToken);
 
             //읽은 게시글 저장
-            viewsService.saveView(boardId,myId);
+            viewService.saveView(boardId,myId);
 
             //자기자신일때는 조회수 증가 안됨.
             if(userId!=myId){
-                //
                 boardService.updateVisitCnt(brd);
             }
         }
@@ -209,7 +207,7 @@ public class BoardController {
                             Model model){
 
         Long userId = jwtTokenizer.getUserIdFromToken(accessToken);
-        List<BoardDTO> list = viewsService.findByUserId(userId);
+        List<BoardDTO> list = viewService.findByUserId(userId);
         model.addAttribute("board" , list);
         return "pages/board/readMyBoard";
     }

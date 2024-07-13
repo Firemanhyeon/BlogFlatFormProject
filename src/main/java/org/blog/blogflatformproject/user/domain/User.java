@@ -59,9 +59,6 @@ public class User {
     @OneToMany(mappedBy = "following" , cascade = CascadeType.ALL)
     private Set<Follow> following;
 
-    @OneToOne(mappedBy = "user" ,cascade = CascadeType.ALL)
-    private Blog blog;
-
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
     private Set<Like> likes;
 
