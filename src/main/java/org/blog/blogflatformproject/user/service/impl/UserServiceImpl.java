@@ -12,6 +12,7 @@ import org.blog.blogflatformproject.user.dto.UserLoginResponseDto;
 import org.blog.blogflatformproject.user.repository.RoleRepository;
 import org.blog.blogflatformproject.user.repository.UserRepository;
 import org.blog.blogflatformproject.user.service.UserService;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -126,6 +128,7 @@ public class UserServiceImpl implements UserService {
     public User findByImgPath(String imgPath){
         return userRepository.findByImagePath(imgPath);
     }
+
     //회원정보저장,수정
     @Transactional
     @Override
@@ -203,4 +206,23 @@ public class UserServiceImpl implements UserService {
         response.addCookie(cookie);
         response.addCookie(accessToken);
     }
+    @Override
+    public Optional<User> findByProviderAndSocialId(String provider , String socialId){
+        return userRepository.findByProviderAndSocialId(provider,socialId);
+    }
+
+    @Transactional(readOnly = false)
+    public User saveUser(String username, String name, String email, String socialId, String provider, PasswordEncoder passwordEncoder, String imageName, String imagePath){
+        User user = new User();
+        user.setUsername(username);
+        user.setName(name);
+        user.setEmail(email);
+        user.setSocialId(socialId);
+        user.setProvider(provider);
+        user.setPassword(passwordEncoder.encode("")); // 비밀번호는 소셜 로그인 사용자의 경우 비워둡니다.
+        user.setImagePath(imagePath);
+        user.setImageName(imageName);
+        return userRepository.save(user);
+    }
+
 }

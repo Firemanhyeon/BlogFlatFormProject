@@ -37,9 +37,10 @@
                                         <button  type="button" data-mdb-button-init
                                                  data-mdb-ripple-init class="btn btn-success btn-block btn-lg gradient-custom-4 text-body" id="loginBtn">로그인</button>
                                     </div>
+                                    <img src="/image/github.png" alt="GitHub Logo" onclick="loginWithGithub()"style="width:70px; cursor:pointer">
+                                    <img src="/image/kakao.png" alt="GitHub Logo" style="cursor: pointer">
 
-                                    <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a th:href="@{/user/signInForm}"
-                                                                                                            class="fw-bold text-body"><u>아이디 만들기</u></a></p>
+                                    <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a th:href="@{/user/signInForm}" class="fw-bold text-body"><u>아이디 만들기</u></a></p>
                                 </form>
                             </div>
                         </div>
@@ -49,6 +50,9 @@
         </div>
     </section>
     <script>
+        function loginWithGithub(){
+            window.location.href="/oauth2/authorization/github";
+        }
         $(document).ready(function(){
             $("#loginBtn").click(function(e){
                 e.preventDefault();

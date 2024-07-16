@@ -7,12 +7,14 @@ import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.domain.Tag;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
+import org.blog.blogflatformproject.board.event.CustomEvent;
 import org.blog.blogflatformproject.board.repository.BoardRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +26,10 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BoardService implements org.blog.blogflatformproject.board.service.BoardService {
+public class BoardServiceImpl implements org.blog.blogflatformproject.board.service.BoardService {
         private final BoardRepository boardRepository;
         private final BlogService blogService;
+        private final ApplicationEventPublisher applicationEventPublisher;
 
     //최근날짜별로 boardList가져오기
         @Override
@@ -121,11 +124,17 @@ public class BoardService implements org.blog.blogflatformproject.board.service.
     //조회수+1
     @Transactional
     @Override
-    public void updateVisitCnt(Board brd){
-            boardRepository.updateVisitCnt(brd.getBoardId());
+    public void updateVisitCnt(Board brd,Long userId){
+        //방문기록저장이벤트
+        CustomEvent customEvent = new CustomEvent(this,brd.getBoardId(),userId);
+        applicationEventPublisher.publishEvent(customEvent);
+
+        //조회수 +1
+        boardRepository.updateVisitCnt(brd.getBoardId());
     }
 
     //조건별 board 리스트 불러오기
+    @Override
     public List<BoardDTO> selectVal(int selectVal){
             List<Board> brd = new ArrayList<>();
        switch (selectVal){

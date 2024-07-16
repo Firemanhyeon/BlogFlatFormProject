@@ -62,4 +62,9 @@ public class User {
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
     private Set<Like> likes;
 
+    @Column(name="social_id", length = 255)
+    private String socialId;
+
+    @Column(name = "provider" , length = 50)
+    private String provider;
 }

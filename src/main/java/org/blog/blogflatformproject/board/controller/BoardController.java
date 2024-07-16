@@ -8,10 +8,12 @@ import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.*;
 import org.blog.blogflatformproject.board.dto.BoardDTO;
 import org.blog.blogflatformproject.board.dto.ReplyDto;
+import org.blog.blogflatformproject.board.event.CustomEvent;
 import org.blog.blogflatformproject.board.service.*;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.UserService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -109,12 +111,9 @@ public class BoardController {
         if(accessToken!=null){
             Long myId = jwtTokenizer.getUserIdFromToken(accessToken);
 
-            //읽은 게시글 저장
-            viewService.saveView(boardId,myId);
-
             //자기자신일때는 조회수 증가 안됨.
             if(userId!=myId){
-                boardService.updateVisitCnt(brd);
+                boardService.updateVisitCnt(brd,myId);
             }
         }
         User user = userService.findByUserId(userId);

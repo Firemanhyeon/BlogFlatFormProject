@@ -5,7 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.dto.UserLoginResponseDto;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 public interface UserService {
 
@@ -24,4 +27,6 @@ public interface UserService {
     UserLoginResponseDto createLoginResponse(User user, String accessToken, String refreshToken);
     String getCookieValue(HttpServletRequest request, String name);
     void deleteCookie(HttpServletResponse response);
+    Optional<User> findByProviderAndSocialId(String provider,String socialId);
+    User saveUser(String username, String name, String email, String socialId, String provider, PasswordEncoder passwordEncoder,String imageName, String imagePath);
 }

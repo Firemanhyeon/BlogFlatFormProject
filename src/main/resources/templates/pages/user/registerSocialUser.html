@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/login.css">
+
+</head>
+<body>
+<div layout:fragment="content">
+    <section class="vh-100" style="background-color: #eee;">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-lg-12 col-xl-11">
+                    <div class="card text-black" style="border-radius: 25px;">
+                        <div class="card-body p-md-5">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                                    <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">회원가입</p>
+
+                                    <form class="mx-1 mx-md-4" id="registrationForm" th:action="@{/user/saveSocialUser}" method="post" enctype="multipart/form-data">
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                            <div class="form-outline flex-fill mb-0 mr-2">
+                                                <label class="form-label" for="username">아이디</label>
+                                                <input type="text" id="username" class="form-control" name="username"/>
+                                            </div>
+                                            <button type="button" class="btn btn btn-primary " id="checkUsername" style="margin-top: 30px">중복확인</button>
+                                        </div>
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                            <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                                <label class="form-label" for="name">이름</label>
+                                                <input type="text" id="name" class="form-control" name="name" />
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                            <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                                <label class="form-label" for="email">이메일</label>
+                                                <input type="email" id="email" class="form-control" name="email" />
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                            <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                                <label  for="emailStatus">이메일수신동의</label>
+                                                <input type="checkbox" id="emailStatus"  name="emailStatus"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center mb-4">
+                                            <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                                            <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                                <label class="form-label" for="image">프로필사진</label>
+                                                <input type="file" id="image" class="form-control" name="imageFile"/>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="socialId" th:value="${socialId}">
+                                        <input type="hidden" name="provider" th:value="${provider}">
+                                        <input type="hidden" name="uuid" th:value="${uuid}">
+                                        <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                            <button  type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg" id="reBtn">회원가입</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
+                                         class="img-fluid" alt="Sample image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        $(document).ready(function(){
+            let finalId = '';
+            $("#checkUsername").click(function(){
+                let username = $("#username").val();
+                if(username==''){
+                    alert('빈값입니다');
+                    return;
+                }
+                $.ajax({
+                    url: "/api/user/duplicateChk",
+                    method: "GET",
+                    data:{
+                        username: username
+                    },
+                    success:function(result){
+                        if(result){
+                            alert('중복된 아이디 입니다. 다시 입력하세요');
+                            $("#username").val('');
+                        }else{
+                            let choice = confirm("사용가능한 아이디입니다. 사용하시겠습니까?");
+                            if(choice){
+                                //input창 readOnly
+                                // $("#username").prop('readonly',true);
+                                finalId = username;
+                            }else{
+                                $("#username").val('');
+                            }
+                        }
+                    },
+                    error:function(err){
+                        console.log(err);
+                    }
+                })
+            })
+            //회원가입버튼클릭이벤트
+            $("#reBtn").click(function(e){
+                e.preventDefault();
+                let name = $("#name").val();
+                let chkId = $("#username").val();
+                let pwd = $("#password").val();
+                let pwdchk = $("#checkPassword").val();
+                let email=$("#email").val();
+                if(chkId!=finalId || chkId==''){
+                    alert('아이디 중복확인을 해주세요');
+                    e.preventDefault();
+                    return ;
+                }
+                if(pwd!=pwdchk){
+                    alert('비밀번호확인이 다릅니다.');
+                    e.preventDefault();
+                    return ;
+                }
+                if(email=='' || pwdchk==''|| pwd==''||chkId==''||name==''){
+                    alert('빈값을 확인하세요');
+                    e.preventDefault();
+                    return ;
+                }
+                $("#registrationForm").submit();
+                // $.ajax({
+                //     url: "/user/userreg",
+                //     method: "POST",
+                //     data:{
+                //         username:chkId,
+                //         name:name,
+                //         email:email,
+                //         password: pwd
+                //     },
+                //     success:function(result){
+                //         console.log(result)
+                //     }
+                // })
+            })
+        });
+    </script>
+</div>
+
+</body>
+</html>

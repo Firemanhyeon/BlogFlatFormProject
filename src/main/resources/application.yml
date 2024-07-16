@@ -1,5 +1,4 @@
 spring:
-
   application:
     name: BlogFlatformProject
   servlet:
@@ -15,11 +14,25 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
   security:
-    user:
-      name: user
-      password: 1234
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Iv23li7WZ2WG4Q1m6XJg
+            client-secret: 52314b86b671ad40bff36a4dcc8052a6c0c5d644
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: GitHub
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
 
   thymeleaf:
     cache: false
@@ -27,6 +40,9 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     enabled: true
+  web:
+    resources:
+      static-locations: classpath:/static/
 
 jwt:
   secretKey: 12345678901234567890123456789012

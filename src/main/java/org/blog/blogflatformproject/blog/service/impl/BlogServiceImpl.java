@@ -1,5 +1,6 @@
 package org.blog.blogflatformproject.blog.service.impl;
 
+import groovy.lang.Lazy;
 import lombok.RequiredArgsConstructor;
 import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.repository.BlogRepository;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService {
     private final BlogRepository blogRepository;
-    private final UserService userService;
+    private final @Lazy UserService userService;
 
     //해당유저의 블로그
     @Override

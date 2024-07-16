@@ -18,7 +18,9 @@ public interface BoardService {
     String sanitizeBoardContent(String content);
     String extractFirstImageUrl(String content);
     boolean deleteBoard(Long boardId);
-    void updateVisitCnt(Board brd);
+    void updateVisitCnt(Board brd,Long userId);
     List<BoardDTO> mySelectVal(int selectVal , String username);
     List<BoardDTO> getTemporaryAndOpenList(String username);
+    List<BoardDTO> selectVal(int selectVal);
+
 }
