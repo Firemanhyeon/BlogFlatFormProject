@@ -193,7 +193,7 @@ CREATE TABLE refresh_token (
 - [x] Spring Security 를 이용한 로그인 구현
     - [x] Form Login
     - [x] JWT Login
-    - [ ] OAuth2 로그인
+    - [x] OAuth2 로그인
 
 ### 3. 사이트 상단
 - [x] 사이트 로고가 좌측 상단에 보여짐
