@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 ,"/api/user/login","/api/user/getUser","/api/user/updatename","/user/logout","/board/boardInfo/**"
                                 ,"/board/getReplies","/api/user/getFollowCnt","/api/user/getFollowingCnt","/board/getSeriesInfo/**"
                                 ,"/board/selectVal","board/mySelectVal","/image/**","/login/oauth2/code/github","/user/registerSocialUser/**"
-                        ,"/user/saveSocialUser","/oauth2/**").permitAll()
+                        ,"/user/saveSocialUser","/oauth2/**","/api/user/auth/kakao/callback").permitAll()
                         .anyRequest()
                         .authenticated()
                 )
@@ -83,9 +83,13 @@ public class SecurityConfig {
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowedMethods(List.of("GET" , "POST" , "DELETE" , "PATCH" , "OPTION" , "PUT"));
+        config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**",config);
         return source;
     }
+
+
+
     //비밀번호 암호화해서 넣기
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {

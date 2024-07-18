@@ -21,9 +21,9 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     List<Board> findAllByOpenYnTrueAndTemporaryYnTrueAndBlogOrderByVisitCountDesc(Blog blog);
 
     //생성날짜순
-    List<Board> findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtAsc(Blog blog);
+    List<Board> findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtDesc(Blog blog);
     //내게시글 생성날짜순
-    List<Board> findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtAsc(Blog blog);
+    List<Board> findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtDesc(Blog blog);
 
     //좋아요많은순
     @Query("SELECT b FROM Board b WHERE b.openYn = true AND b.temporaryYn = true ORDER BY SIZE(b.likes) DESC")

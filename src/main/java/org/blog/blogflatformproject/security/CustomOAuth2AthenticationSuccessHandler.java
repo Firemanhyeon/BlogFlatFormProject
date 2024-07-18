@@ -45,7 +45,6 @@ public class CustomOAuth2AthenticationSuccessHandler implements AuthenticationSu
         String provider = extractProviderFromUri(requestUri);
         // provider가 없는 경로 요청이 왔다는것은 문제가 발생한것이다.
         if(provider == null){
-            System.out.println("provider없음");
             response.sendRedirect("/");
             return;
         }
@@ -85,7 +84,7 @@ public class CustomOAuth2AthenticationSuccessHandler implements AuthenticationSu
 
             UserLoginResponseDto loginResponse = userService.createLoginResponse(user,chkAccessToken,refreshToken);
             userService.addCookies(response , chkAccessToken,refreshToken,user);
-            response.sendRedirect("/");
+            response.sendRedirect("/blog/"+user.getUsername());
 
 
         }else { // 소셜로 아직 회원가입이 안되었을 때.

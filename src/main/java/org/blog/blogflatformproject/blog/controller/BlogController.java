@@ -47,7 +47,6 @@ public class BlogController {
         boolean isLogin = false;
 
         if (!accessToken.isEmpty()) { // accessToken이 비어 있지 않은 경우에만 팔로우 확인
-            System.out.println("액세스토큰있음");
             if (followService.chkFollow(user, userService.findByUserId(jwtTokenizer.getUserIdFromToken(accessToken)))) {
 
                 isFollow = true;

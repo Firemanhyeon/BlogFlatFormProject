@@ -107,8 +107,21 @@ public class UserController {
     public String saveSocialUser(@RequestParam("provider")  String provider, @RequestParam("socialId")
     String socialId, @RequestParam("name")  String name, @RequestParam("username")  String username, @RequestParam("email")
                                  String email, @RequestParam("uuid")  String uuid,@RequestParam("imageFile")MultipartFile imageFile ,Model model) {
+        System.out.println("1111");
         Optional<SocialLoginInfo> socialLoginInfoOptional = socialLoginInfoService.findByProviderAndUuidAndSocialId(provider, uuid, socialId);
 
+        //카카오 로직일경우
+        if(provider.equals("kakao")){
+            FileDto dto=null;
+            if(!imageFile.isEmpty()){
+                //파일저장
+                dto = userService.fileUpload(imageFile);
+            }
+            // 유효한 경우 User 정보를 저장합니다.
+            userService.saveUser(username, name, email, socialId, provider,passwordEncoder,dto.getImageName(),dto.getImagePath());
+
+            return "redirect:/user/loginform";
+        }
         if (socialLoginInfoOptional.isPresent()) {
             SocialLoginInfo socialLoginInfo = socialLoginInfoOptional.get();
             LocalDateTime now = LocalDateTime.now();
@@ -130,4 +143,5 @@ public class UserController {
             return "redirect:/error"; // 해당 정보가 없는 경우 에러 페이지로 리다이렉트
         }
     }
+
 }

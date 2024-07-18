@@ -6,6 +6,7 @@ import org.blog.blogflatformproject.blog.domain.Blog;
 import org.blog.blogflatformproject.blog.domain.Series;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -27,7 +28,7 @@ public class Board {
     private String boardContent;
 
     @Column(name = "created_at")
-    private LocalDate createAt;
+    private LocalDateTime createAt;
 
     @Column(name = "temporary_yn")
     private boolean temporaryYn;

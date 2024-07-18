@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.blog.blogflatformproject.board.domain.Reply;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -15,7 +16,7 @@ public class BoardDTO {
     private String boardContent;
     private String blogName;
     private Long blogId;
-    private LocalDate createAt;
+    private LocalDateTime createAt;
     private String firstImagePath;
     private int visitCount;
 

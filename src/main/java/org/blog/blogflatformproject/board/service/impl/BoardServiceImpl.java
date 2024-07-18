@@ -18,7 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
             Blog blog = blogService.findByUsername(username);
             board.setTags(tags);
             board.setBlog(blog);
-            board.setCreateAt(LocalDate.now());
+            board.setCreateAt(LocalDateTime.now());
             String firstImagePath = sanitizeBoardContent(board.getBoardContent());
             firstImagePath = extractFirstImageUrl(firstImagePath) ;
             board.setFirstImagePath(firstImagePath);
@@ -73,7 +73,7 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
         @Override
         public List<Board> findByUsername(String username){
             Blog blog = blogService.findByUsername(username);
-            return boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtAsc(blog);
+            return boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtDesc(blog);
         }
 
 
@@ -172,7 +172,7 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
         switch (selectVal){
             //최근날짜별
             case 1:
-                brd=boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtAsc(blog);
+                brd=boardRepository.findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtDesc(blog);
                 break;
             //좋아요별
             case 2:
@@ -200,7 +200,7 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
     @Override
     public List<BoardDTO> getTemporaryAndOpenList(String username){
             Blog blog = blogService.findByUsername(username);
-        List<Board> boards = boardRepository.findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtAsc(blog);
+        List<Board> boards = boardRepository.findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtDesc(blog);
         List<BoardDTO> dtos = new ArrayList<>();
         for(Board board : boards){
             BoardDTO dto = new BoardDTO();

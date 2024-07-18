@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -222,6 +223,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode("")); // 비밀번호는 소셜 로그인 사용자의 경우 비워둡니다.
         user.setImagePath(imagePath);
         user.setImageName(imageName);
+        user.setRegistrationDate(LocalDate.now());
         return userRepository.save(user);
     }
 

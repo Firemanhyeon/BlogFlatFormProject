@@ -21,8 +21,7 @@ $(document).ready(function(){
                                     <div class="text-center">
                                         <!-- Product name-->
                                         <h5 class="fw-bolder">${board.boardTitle}</h5>
-                                        <!-- Product price-->
-                                        태그
+     
                                     </div>
                                 </div>
                                 <!-- Product actions-->

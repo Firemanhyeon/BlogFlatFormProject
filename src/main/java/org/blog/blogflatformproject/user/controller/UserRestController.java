@@ -1,28 +1,35 @@
 package org.blog.blogflatformproject.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.blog.blogflatformproject.user.domain.Follow;
-import org.blog.blogflatformproject.user.domain.RefreshToken;
+import org.blog.blogflatformproject.security.CustomUserDetails;
+import org.blog.blogflatformproject.user.domain.*;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
-import org.blog.blogflatformproject.user.domain.Role;
-import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.dto.FileDto;
 import org.blog.blogflatformproject.user.dto.UserLoginDto;
 import org.blog.blogflatformproject.user.dto.UserLoginResponseDto;
 import org.blog.blogflatformproject.user.service.FollowService;
-import org.blog.blogflatformproject.user.service.impl.RefreshTokenServiceImpl;
+import org.blog.blogflatformproject.user.service.RefreshTokenService;
 import org.blog.blogflatformproject.user.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,7 +40,7 @@ public class UserRestController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
-    private final RefreshTokenServiceImpl refreshTokenServiceImpl;
+    private final RefreshTokenService refreshTokenService;
     private final FollowService followService;
 
     @PostMapping("/login")
@@ -87,9 +94,9 @@ public class UserRestController {
                 refreshTokenEntity.setValue(refreshToken);
                 refreshTokenEntity.setUserId(user.getUserId());
                 //기존에 저장되어있던 리프레시토큰 삭제
-                refreshTokenServiceImpl.deleteRefreshToken(user.getUserId());
+                refreshTokenService.deleteRefreshToken(user.getUserId());
                 //리프레시토큰 생성
-                refreshTokenServiceImpl.addRefreshToken(refreshTokenEntity);
+                refreshTokenService.addRefreshToken(refreshTokenEntity);
 
                 UserLoginResponseDto loginResponse = userService.createLoginResponse(user,chkAccessToken,refreshToken);
                 userService.addCookies(response , chkAccessToken,refreshToken,user);
@@ -227,5 +234,109 @@ public class UserRestController {
         return new ResponseEntity(follwingCount,HttpStatus.OK);
     }
 
+    //카카오로그인
+    @GetMapping("/auth/kakao/callback")
+    public void kakaoLogin(@RequestParam("code") String code , HttpServletRequest request, HttpServletResponse httpServletResponse){
+        RestTemplate rt = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
 
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", "289b00ad2e01aaf2f3cbf209a97a53ed");
+        params.add("redirect_uri", "http://localhost:8080/api/user/auth/kakao/callback");
+        params.add("code", code);
+
+
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> response = rt.exchange(
+                "https://kauth.kakao.com/oauth/token", // https://{요청할 서버 주소}
+                HttpMethod.POST, // 요청할 방식
+                kakaoTokenRequest, // 요청할 때 보낼 데이터
+                String.class // 요청 시 반환되는 데이터 타입
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        OAuthToken oAuthToken=null;
+        try {
+            oAuthToken = objectMapper.readValue(response.getBody(), OAuthToken.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("발급받은 액세스키: "+oAuthToken.getAccess_token());
+        RestTemplate rt2 = new RestTemplate();
+        HttpHeaders headers2 = new HttpHeaders();
+        headers2.add("Authorization","Bearer "+oAuthToken.getAccess_token());
+        headers2.add("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest2 = new HttpEntity<>(params,headers2);
+
+        ResponseEntity<String> response2 = rt2.exchange(
+                "https://kapi.kakao.com/v2/user/me", // https://{요청할 서버 주소}
+                HttpMethod.POST, // 요청할 방식
+                kakaoProfileRequest2, // 요청할 때 보낼 데이터
+                String.class // 요청 시 반환되는 데이터 타입
+        );
+
+
+        ObjectMapper objectMapper2 = new ObjectMapper();
+        KakaoLoginInfo kakaoLoginInfo=null;
+        try {
+            kakaoLoginInfo = objectMapper2.readValue(response2.getBody(), KakaoLoginInfo.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(kakaoLoginInfo.getNickname());
+        System.out.println(kakaoLoginInfo.getId());
+        System.out.println(kakaoLoginInfo.getEmail());
+        System.out.println(kakaoLoginInfo.getConnectedAt());
+
+        Optional<User> userOptional = userService.findByProviderAndSocialId("kakao", kakaoLoginInfo.getId());
+
+        if(userOptional.isPresent()){
+            //이미 가입한 아이디가 있는경우
+            //액세스토큰 리프레스토큰 발급하고 로그인처리
+            System.out.println("회원정보있음");
+            // 회원 정보가 있으면 로그인 처리
+            User user = userOptional.get();
+
+            // CustomUserDetails 생성
+            org.blog.blogflatformproject.security.CustomUserDetails customUserDetails = new CustomUserDetails(user.getUsername(), user.getPassword(), user.getName(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()));
+
+            // Authentication 객체 생성 및 SecurityContext에 설정
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+            String refreshToken = jwtTokenizer.createRefreshToken(user.getUserId(), user.getEmail(), user.getName(), user.getUsername(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()));
+            String chkAccessToken = jwtTokenizer.createAccessToken(user.getUserId(), user.getEmail(), user.getName(), user.getUsername(), user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList()));
+
+            //데이터베이스에 넣을 객체 생성
+            RefreshToken refreshTokenEntity = new RefreshToken();
+            refreshTokenEntity.setValue(refreshToken);
+            refreshTokenEntity.setUserId(user.getUserId());
+            //기존에 저장되어있던 리프레시토큰 삭제
+            refreshTokenService.deleteRefreshToken(user.getUserId());
+            //리프레시토큰 생성
+            refreshTokenService.addRefreshToken(refreshTokenEntity);
+
+            UserLoginResponseDto loginResponse = userService.createLoginResponse(user,chkAccessToken,refreshToken);
+            userService.addCookies(httpServletResponse , chkAccessToken,refreshToken,user);
+
+            try {
+                httpServletResponse.sendRedirect("/blog/"+user.getUsername());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            //가입한 아이디가 없는경우
+            //소셜로그인 회원가입창으로 redirect
+            try {
+                httpServletResponse.sendRedirect("/user/registerSocialUser?provider=kakao&socialId=" + kakaoLoginInfo.getId() + "&uuid=uuid");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
