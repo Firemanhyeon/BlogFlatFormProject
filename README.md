@@ -400,10 +400,8 @@ create table blog.views
 >방법3. id와 name만 담는 새로운 categoryDTO를 생성하여 거기에 새로 담아주기
 
 
-![model객체 js에서 쓰기 트러블해결1](https://github.com/user-attachments/assets/8eed354f-67d7-4f98-a231-9f6d23b53a52)
-
-
 2.
 > 컨트롤러에서 Board엔티티 객체자체를 보내서 js의 변수에 할당하려고 했다. 하지만 오류가 났다. 인코딩을 할수 없다. 
-> 이 오류가 전에도 한번 났었는데 그 경우 가져올 값이 id한개 뿐이라서 그냥 input hidden타입에 thymeleaf를 이용하여 값을 할당하고 제이쿼리 언어로 그 값을 가져오는 형태로 해결했는데 이번엔 Board객체 전체를 보내야 하는 상황에서 해당 객체의 필드를 전부 input창에 넣어줄 수도 없는 경우였다. 문제의 원인은 entity객체를 보내서 생긴 문제였다. view와 controller 사이에 값을 교환할때는 DTO를 통해서 보내야한다는 말이다. 그럼 새로운 DTO를 각각의 요청에 필요한 값을 담은 DTO를 전부 선언해주어야하냐?̊̈ 그에대한 답은 여기서 찾았다.![[스크린샷 2024-06-22 오후 8.17.56.png]]
+> 이 오류가 전에도 한번 났었는데 그 경우 가져올 값이 id한개 뿐이라서 그냥 input hidden타입에 thymeleaf를 이용하여 값을 할당하고 제이쿼리 언어로 그 값을 가져오는 형태로 해결했는데 이번엔 Board객체 전체를 보내야 하는 상황에서 해당 객체의 필드를 전부 input창에 넣어줄 수도 없는 경우였다. 문제의 원인은 entity객체를 보내서 생긴 문제였다. view와 controller 사이에 값을 교환할때는 DTO를 통해서 보내야한다는 말이다. 그럼 새로운 DTO를 각각의 요청에 필요한 값을 담은 DTO를 전부 선언해주어야하냐?̊̈ 그에대한 답은 여기서 찾았다.
+![model객체 js에서 쓰기 트러블해결1](https://github.com/user-attachments/assets/8eed354f-67d7-4f98-a231-9f6d23b53a52)
 ![model객체 js에서 쓰기 트러블해결2](https://github.com/user-attachments/assets/11e1871e-1a80-4911-8663-c6cd657daf08)
