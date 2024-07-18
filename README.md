@@ -398,7 +398,10 @@ create table blog.views
 >방법1.카테고리 엔티티에 정의된 Set타입의 board 리스트를 지워주었다. 카테고리에서 board 객체를 쓸 일이 있을까? (카테고리별 게시글가져오기 같은 경우엔 가져와야하지않나?)
 >방법2. service단에서 하위카테고리 id와 그에 맞는 이름만 return 하도록 설계해도 될거같다.
 >방법3. id와 name만 담는 새로운 categoryDTO를 생성하여 거기에 새로 담아주기
+
+
 ![model객체 js에서 쓰기 트러블해결1](https://github.com/user-attachments/assets/8eed354f-67d7-4f98-a231-9f6d23b53a52)
+
 
 2.
 > 컨트롤러에서 Board엔티티 객체자체를 보내서 js의 변수에 할당하려고 했다. 하지만 오류가 났다. 인코딩을 할수 없다. 
