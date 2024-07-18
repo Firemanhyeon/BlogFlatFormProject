@@ -39,5 +39,8 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     @Modifying
     @Query("UPDATE Board b SET b.visitCount = b.visitCount + 1 WHERE b.boardId = :boardId")
     void updateVisitCnt(@Param("boardId")Long boardId);
+    List<Board> findAllByBoardTitleContainingOrderByCreateAtDesc(String boardTitle);
+
     }
+
 

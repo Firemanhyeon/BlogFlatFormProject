@@ -161,6 +161,21 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
        return list;
     }
 
+    @Override
+    public List<BoardDTO> searchVal(String searchVal) {
+        List<Board> boards = boardRepository.findAllByBoardTitleContainingOrderByCreateAtDesc(searchVal);
+        List<BoardDTO> list = new ArrayList<>();
+        for(Board board : boards){
+            BoardDTO dto = new BoardDTO();
+            dto.setBoardId(board.getBoardId());
+            dto.setBoardTitle(board.getBoardTitle());
+            dto.setFirstImagePath(board.getFirstImagePath());
+            dto.setVisitCount(board.getVisitCount());
+            list.add(dto);
+        }
+        return list;
+    }
+
 
     //해당블로그 조건별 board 리스트 불러오기
     @Override

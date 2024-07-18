@@ -16,10 +16,13 @@ public class CommonController {
     private final BoardServiceImpl boardService;
 
     @GetMapping("/")
-    public String mainPage(Model model){
+    public String mainPage(Model model)throws IllegalArgumentException{
+        try{
+            List<Board> boardList = boardService.getBoardListOrderByCreatedAt();
+            model.addAttribute("boardList" , boardList);
+        }catch (Exception e){
 
-        List<Board> boardList = boardService.getBoardListOrderByCreatedAt();
-        model.addAttribute("boardList" , boardList);
+        }
         return "pages/main";
     }
 }

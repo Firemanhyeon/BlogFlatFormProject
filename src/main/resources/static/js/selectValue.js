@@ -53,4 +53,25 @@ $(document).ready(function(){
             }
         })
     })
+
+    $('#titleSearchBtn').click(function(){
+        let val = $('#searchValue').val();
+        if(val===''){
+            return;
+        }
+        $.ajax({
+            url:'/board/searchVal',
+            method:'GET',
+            data:{
+                searchVal:val
+            },
+            success:function(result){
+                console.log(result);
+                updateBoardList(result);
+            },
+            error:function(err){
+                console.log(err);
+            }
+        })
+    })
 })

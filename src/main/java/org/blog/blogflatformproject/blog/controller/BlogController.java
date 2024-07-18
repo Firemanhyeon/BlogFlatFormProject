@@ -8,7 +8,6 @@ import org.blog.blogflatformproject.blog.service.BlogService;
 import org.blog.blogflatformproject.board.domain.Board;
 import org.blog.blogflatformproject.board.service.BoardService;
 import org.blog.blogflatformproject.board.service.SeriesService;
-import org.blog.blogflatformproject.board.service.impl.BoardServiceImpl;
 import org.blog.blogflatformproject.jwt.util.JwtTokenizer;
 import org.blog.blogflatformproject.user.domain.User;
 import org.blog.blogflatformproject.user.service.FollowService;

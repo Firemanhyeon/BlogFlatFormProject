@@ -152,6 +152,11 @@ public class BoardRestController {
 
         return boardService.selectVal(selectVal);
     }
+    //검색해서 board 가져오기
+    @GetMapping("/searchVal")
+    public List<BoardDTO> searchVal(@RequestParam("searchVal") String searchVal){
+        return boardService.searchVal(searchVal);
+    }
 
     //해당블로그 조건별 정렬 board가져오기
     @GetMapping("/mySelectVal")

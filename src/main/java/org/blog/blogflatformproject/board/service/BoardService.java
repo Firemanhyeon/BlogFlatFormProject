@@ -23,4 +23,5 @@ public interface BoardService {
     List<BoardDTO> getTemporaryAndOpenList(String username);
     List<BoardDTO> selectVal(int selectVal);
 
+    List<BoardDTO> searchVal(String searchVal);
 }

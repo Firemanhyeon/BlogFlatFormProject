@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -17,7 +19,7 @@ public class CommonRestController {
 
     private static final String UPLOAD_DIR = "/Users/jeonghohyeon/Desktop/blogUserImage/";
 
-    //이미지불러오기
+    // 이미지 불러오기
     @GetMapping("/Users/jeonghohyeon/Desktop/blogUserImage/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable("filename") String filename) {
         try {
@@ -25,13 +27,16 @@ public class CommonRestController {
             Path file = Paths.get(UPLOAD_DIR).resolve(filename);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
+                // 파일 이름을 UTF-8로 인코딩
+                String encodedFilename = URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + encodedFilename + "\"")
                         .body(resource);
             } else {
                 throw new RuntimeException("파일을 찾을 수 없거나 읽을 수 없습니다.");
             }
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("파일 경로가 잘못되었습니다.", e);
         }
     }
