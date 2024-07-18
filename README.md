@@ -29,148 +29,254 @@
 # 데이터베이스 구조
 
 ```sql
-CREATE TABLE `user` (
-                        `user_id` BIGINT NOT NULL AUTO_INCREMENT,
-                        `username` VARCHAR(50) NOT NULL UNIQUE,
-                        `password` VARCHAR(100) NOT NULL,
-                        `name` VARCHAR(100) NOT NULL,
-                        `email` VARCHAR(100) NOT NULL,
-                        `email_status` TINYINT NOT NULL DEFAULT 0,
-                        `registration_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-                        `image_name` VARCHAR(100) NULL,
-                        `image_path` VARCHAR(100) NULL,
-                        PRIMARY KEY (`user_id`)
+create table blog.blog
+(
+    blog_id                bigint auto_increment
+        primary key,
+    user_id                bigint       null,
+    blog_name              varchar(255) null,
+    blog_description       varchar(255) null,
+    blog_registration_date date         null,
+    constraint fk_blog_user
+        foreign key (user_id) references blog.user (user_id)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE `role` (
-                        `roles_id` BIGINT NOT NULL AUTO_INCREMENT,
-                        `roles_name` VARCHAR(50) NOT NULL UNIQUE,
-                        PRIMARY KEY (`roles_id`)
+
+
+create table blog.board
+(
+    board_id         bigint auto_increment
+        primary key,
+    blog_id          bigint         not null,
+    category_id      bigint         not null,
+    board_title      varchar(255)   null,
+    board_content    varchar(10000) null,
+    created_at       date           null,
+    temporary_yn     bit            null,
+    open_yn          bit            null,
+    visit_count      int default 0  not null,
+    series_id        bigint         null,
+    first_image_path varchar(255)   null,
+    constraint board_ibfk_1
+        foreign key (blog_id) references blog.blog (blog_id)
+            on update cascade on delete cascade,
+    constraint board_ibfk_2
+        foreign key (category_id) references blog.category (category_id)
+            on update cascade on delete cascade,
+    constraint board_ibfk_3
+        foreign key (series_id) references blog.series (series_id)
+            on update cascade on delete set null
 );
 
-CREATE TABLE `user_role` (
-                             `roles_id` BIGINT NOT NULL,
-                             `user_id` BIGINT NOT NULL,
-                             PRIMARY KEY (`roles_id`, `user_id`),
-                             FOREIGN KEY (`roles_id`) REFERENCES `role` (`roles_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                             FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create index blog_id
+    on blog.board (blog_id);
+
+create index category_id
+    on blog.board (category_id);
+
+create index series_id
+    on blog.board (series_id);
+
+
+create table category
+(
+    category_id   bigint auto_increment
+        primary key,
+    category_name varchar(255) null,
+    pre_category  bigint       null,
+    constraint category_ibfk_1
+        foreign key (pre_category) references blog.category (category_id)
+            on update cascade on delete set null
+);
+create table blog.follow
+(
+    follow_id    bigint auto_increment
+        primary key,
+    follower_id  bigint null,
+    following_id bigint null,
+    constraint chk_follows_unique_users
+        unique (follower_id, following_id),
+    constraint FKmow2qk674plvwyb4wqln37svv
+        foreign key (follower_id) references blog.user (user_id),
+    constraint FKqme6uru2g9wx9iysttk542esm
+        foreign key (following_id) references blog.user (user_id)
 );
 
-CREATE TABLE `blog` (
-                        `blog_id` BIGINT NOT NULL AUTO_INCREMENT,
-                        `user_id` BIGINT NULL,
-                        `blog_name` VARCHAR(50) NOT NULL,
-                        `blog_description` VARCHAR(100) NULL,
-                        `blog_registration_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-                        PRIMARY KEY (`blog_id`),
-                        FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
+create table blog.likes
+(
+    like_id  bigint auto_increment
+        primary key,
+    board_id bigint not null,
+    user_id  bigint null,
+    constraint board_id
+        unique (board_id, user_id),
+    constraint likes_ibfk_1
+        foreign key (board_id) references blog.board (board_id)
+            on update cascade on delete cascade,
+    constraint likes_ibfk_2
+        foreign key (user_id) references blog.user (user_id)
+            on update cascade on delete set null
 );
 
-CREATE TABLE `board` (
-                         `board_id` BIGINT NOT NULL AUTO_INCREMENT,
-                         `blog_id` BIGINT NOT NULL,
-                         `category_id` BIGINT NOT NULL,
-                         `board_title` VARCHAR(50) NOT NULL,
-                         `board_content` TEXT NOT NULL,
-                         `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-                         `temporary_YN` TINYINT NOT NULL DEFAULT 1,
-                         `open_YN` TINYINT NOT NULL DEFAULT 1,
-                         `visit_count` INT NOT NULL DEFAULT 0,
-                         `series_id` BIGINT NULL,
-                         `first_image_path` VARCHAR(100) NULL,
-                         PRIMARY KEY (`board_id`),
-                         FOREIGN KEY (`blog_id`) REFERENCES `blog` (`blog_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                         FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                         FOREIGN KEY (`series_id`) REFERENCES `series` (`series_id`) ON DELETE SET NULL ON UPDATE CASCADE
+create index user_id
+    on blog.likes (user_id);
+
+create table blog.refresh_token
+(
+    id      bigint auto_increment
+        primary key,
+    user_id bigint       not null,
+    value   varchar(255) not null
 );
 
-CREATE TABLE `likes` (
-                         `like_id` BIGINT NOT NULL AUTO_INCREMENT,
-                         `board_id` BIGINT NOT NULL,
-                         `user_id` BIGINT NULL,
-                         PRIMARY KEY (`like_id`),
-                         UNIQUE KEY (`board_id`, `user_id`),
-                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                         FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
+create table blog.reply
+(
+    reply_id      bigint auto_increment
+        primary key,
+    board_id      bigint                              not null,
+    reply_content varchar(255)                        null,
+    reply_created timestamp default CURRENT_TIMESTAMP null,
+    pre_reply_id  bigint                              null,
+    user_id       bigint                              null,
+    constraint reply_ibfk_1
+        foreign key (board_id) references blog.board (board_id)
+            on update cascade on delete cascade,
+    constraint reply_ibfk_2
+        foreign key (pre_reply_id) references blog.reply (reply_id)
+            on update cascade on delete set null
 );
 
-CREATE TABLE `category` (
-                        `category_id` BIGINT NOT NULL AUTO_INCREMENT,
-                        `category_name` VARCHAR(50) NOT NULL,
-                        `pre_category` BIGINT NULL,
-                        PRIMARY KEY (`category_id`),
-                        FOREIGN KEY (`pre_category`) REFERENCES `category` (`category_id`) ON DELETE SET NULL ON UPDATE CASCADE
+create index board_id
+    on blog.reply (board_id);
+
+create index pre_reply_id
+    on blog.reply (pre_reply_id);
+
+create table blog.role
+(
+    roles_id   bigint auto_increment
+        primary key,
+    roles_name varchar(255) null,
+    constraint roles_name
+        unique (roles_name)
 );
 
-CREATE TABLE `follow` (
-                          `follow_id` BIGINT NOT NULL AUTO_INCREMENT,
-                          `follower_user_id` BIGINT NULL,
-                          `following_user_id` BIGINT NULL,
-                          PRIMARY KEY (`follow_id`),
-                          UNIQUE KEY (`follower_user_id`, `following_user_id`),
-                          FOREIGN KEY (`follower_user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                          FOREIGN KEY (`following_user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create table blog.series
+(
+    series_id    bigint auto_increment
+        primary key,
+    blog_id      bigint       not null,
+    series_title varchar(255) not null,
+    constraint series_ibfk_1
+        foreign key (blog_id) references blog.blog (blog_id)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE `reply` (
-                         `reply_id` BIGINT NOT NULL AUTO_INCREMENT,
-                         `board_id` BIGINT NOT NULL,
-                         `reply_content` VARCHAR(100) NOT NULL,
-                         `reply_created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-                         `pre_reply_id` BIGINT NULL,
-                         PRIMARY KEY (`reply_id`),
-                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                         FOREIGN KEY (`pre_reply_id`) REFERENCES `reply` (`reply_id`) ON DELETE SET NULL ON UPDATE CASCADE
+create index blog_id
+    on blog.series (blog_id);
+
+create table blog.social_login_info
+(
+    id         bigint auto_increment
+        primary key,
+    provider   varchar(255)                        not null,
+    social_Id  varchar(255)                        not null,
+    created_At timestamp default CURRENT_TIMESTAMP not null,
+    uuid       varchar(255)                        not null
 );
 
-CREATE TABLE `image` (
-                         `image_id` BIGINT NOT NULL AUTO_INCREMENT,
-                         `board_id` BIGINT NOT NULL,
-                         `image_original_name` VARCHAR(255) NOT NULL,
-                         `image_name` VARCHAR(255) NOT NULL,
-                         `image_path` VARCHAR(100) NOT NULL,
-                         PRIMARY KEY (`image_id`),
-                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create table blog.social_user
+(
+    id         bigint auto_increment
+        primary key,
+    social_id  varchar(255) not null,
+    provider   varchar(255) not null,
+    username   varchar(255) null,
+    email      varchar(255) null,
+    avatar_url varchar(255) null
 );
 
-CREATE TABLE `series` (
-                          `series_id` BIGINT NOT NULL AUTO_INCREMENT,
-                          `blog_id` BIGINT NOT NULL,
-                          `series_title` VARCHAR(255) NOT NULL,
-                          PRIMARY KEY (`series_id`),
-                          FOREIGN KEY (`blog_id`) REFERENCES `blog` (`blog_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create table blog.tag
+(
+    tag_id   bigint auto_increment
+        primary key,
+    tag_name varchar(255) null
 );
 
-CREATE TABLE `tag` (
-                       `tag_id` BIGINT NOT NULL AUTO_INCREMENT,
-                       `tag_name` VARCHAR(30) NOT NULL,
-                       PRIMARY KEY (`tag_id`)
+create table blog.tag_board
+(
+    tag_id   bigint not null,
+    board_id bigint not null,
+    primary key (tag_id, board_id),
+    constraint tag_board_ibfk_1
+        foreign key (tag_id) references blog.tag (tag_id)
+            on update cascade on delete cascade,
+    constraint tag_board_ibfk_2
+        foreign key (board_id) references blog.board (board_id)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE `tag_board` (
-                             `tag_id` BIGINT NOT NULL,
-                             `board_id` BIGINT NOT NULL,
-                             PRIMARY KEY (`tag_id`, `board_id`),
-                             FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                             FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create index board_id
+    on blog.tag_board (board_id);
+
+create table blog.user
+(
+    user_id           bigint auto_increment
+        primary key,
+    username          varchar(255) not null,
+    password          varchar(255) not null,
+    name              varchar(255) not null,
+    email             varchar(255) not null,
+    email_status      bit          null,
+    registration_date date         null,
+    image_name        varchar(255) null,
+    image_path        varchar(255) null,
+    social_id         varchar(255) null,
+    provider          varchar(50)  null,
+    constraint username
+        unique (username)
 );
 
-CREATE TABLE `views` (
-                         `view_id` BIGINT NOT NULL AUTO_INCREMENT,
-                         `user_id` BIGINT NULL,
-                         `board_id` BIGINT NOT NULL,
-                         `view_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         PRIMARY KEY (`view_id`),
-                         UNIQUE KEY (`user_id`, `board_id`),
-                         FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-                         FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE
+create table blog.user_role
+(
+    roles_id bigint not null,
+    user_id  bigint not null,
+    primary key (roles_id, user_id),
+    constraint user_role_ibfk_1
+        foreign key (roles_id) references blog.role (roles_id)
+            on update cascade on delete cascade,
+    constraint user_role_ibfk_2
+        foreign key (user_id) references blog.user (user_id)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE refresh_token (
-                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                               user_id BIGINT NOT NULL,
-                               value VARCHAR(255) NOT NULL
+create index user_id
+    on blog.user_role (user_id);
+
+create table blog.user_roles
+(
+    user_user_id  bigint not null,
+    roles_role_id bigint not null,
+    primary key (user_user_id, roles_role_id),
+    constraint FKkv46dn3qakjvsk7ra33nd5sns
+        foreign key (user_user_id) references blog.user (user_id)
 );
+
+create table blog.views
+(
+    view_id      bigint auto_increment
+        primary key,
+    view_created datetime(6) null,
+    board_id     bigint      null,
+    user_id      bigint      null,
+    constraint FK6xwaoc6lyg1841pysjlep8ess
+        foreign key (user_id) references blog.user (user_id)
+            on update cascade on delete cascade,
+    constraint FKmqpiy3lq3dq4x7h1mvt5obxyl
+        foreign key (board_id) references blog.board (board_id)
+);
+
 ```
 
 # 개인 미션형 프로젝트
@@ -193,7 +299,7 @@ CREATE TABLE refresh_token (
 - [x] Spring Security 를 이용한 로그인 구현
     - [x] Form Login
     - [x] JWT Login
-    - [ ] OAuth2 로그인
+    - [x] OAuth2 로그인
 
 ### 3. 사이트 상단
 - [x] 사이트 로고가 좌측 상단에 보여짐
