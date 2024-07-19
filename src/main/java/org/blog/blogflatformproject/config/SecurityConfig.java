@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 ,"/api/user/login","/api/user/getUser","/api/user/updatename","/user/logout","/board/boardInfo/**"
                                 ,"/board/getReplies","/api/user/getFollowCnt","/api/user/getFollowingCnt","/board/getSeriesInfo/**"
                                 ,"/board/selectVal","board/mySelectVal","/image/**","/login/oauth2/code/github","/user/registerSocialUser/**"
-                        ,"/user/saveSocialUser","/oauth2/**","/api/user/auth/kakao/callback").permitAll()
+                        ,"/user/saveSocialUser","/oauth2/**","/api/user/auth/kakao/callback","/board/searchVal").permitAll()
                         .anyRequest()
                         .authenticated()
                 )

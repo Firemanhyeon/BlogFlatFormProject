@@ -53,14 +53,14 @@ public class User {
     )
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "follower" , cascade = CascadeType.ALL)
-    private Set<Follow> followers;
-
-    @OneToMany(mappedBy = "following" , cascade = CascadeType.ALL)
-    private Set<Follow> following;
-
-    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
-    private Set<Like> likes;
+//    @OneToMany(mappedBy = "follower" , cascade = CascadeType.ALL)
+//    private Set<Follow> followers;
+//
+//    @OneToMany(mappedBy = "following" , cascade = CascadeType.ALL)
+//    private Set<Follow> following;
+//
+//    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
+//    private Set<Like> likes;
 
     @Column(name="social_id", length = 255)
     private String socialId;

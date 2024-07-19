@@ -214,7 +214,7 @@ public class BoardServiceImpl implements org.blog.blogflatformproject.board.serv
     //비공개글 및 임시글 가져오기
     @Override
     public List<BoardDTO> getTemporaryAndOpenList(String username){
-            Blog blog = blogService.findByUsername(username);
+        Blog blog = blogService.findByUsername(username);
         List<Board> boards = boardRepository.findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtDesc(blog);
         List<BoardDTO> dtos = new ArrayList<>();
         for(Board board : boards){

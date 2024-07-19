@@ -236,7 +236,7 @@ public class UserRestController {
 
     //카카오로그인
     @GetMapping("/auth/kakao/callback")
-    public void kakaoLogin(@RequestParam("code") String code , HttpServletRequest request, HttpServletResponse httpServletResponse){
+    public void kakaoLogin(@RequestParam("code") String code ,HttpServletResponse httpServletResponse){
         RestTemplate rt = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/x-www-form-urlencoded;charset=utf-8");

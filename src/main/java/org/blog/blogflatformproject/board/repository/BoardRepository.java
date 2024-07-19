@@ -21,7 +21,12 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     List<Board> findAllByOpenYnTrueAndTemporaryYnTrueAndBlogOrderByVisitCountDesc(Blog blog);
 
     //생성날짜순
-    List<Board> findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtDesc(Blog blog);
+    @Query("SELECT b \n" +
+            "FROM Board b \n" +
+            "WHERE (b.openYn = false AND b.blog = :blog) \n" +
+            "   OR (b.temporaryYn = false AND b.blog = :blog) \n" +
+            "ORDER BY b.createAt DESC")
+    List<Board> findAllByOpenYnFalseOrTemporaryYnFalseAndBlogOrderByCreateAtDesc(@Param("blog") Blog blog);
     //내게시글 생성날짜순
     List<Board> findByBlogAndOpenYnTrueAndTemporaryYnTrueOrderByCreateAtDesc(Blog blog);
 
@@ -39,6 +44,7 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     @Modifying
     @Query("UPDATE Board b SET b.visitCount = b.visitCount + 1 WHERE b.boardId = :boardId")
     void updateVisitCnt(@Param("boardId")Long boardId);
+
     List<Board> findAllByBoardTitleContainingOrderByCreateAtDesc(String boardTitle);
 
     }

@@ -139,6 +139,8 @@
 $(document).ready(function(){
     let followCheck =  [[${isFollow}]];
     let isLogin = $('#isLogin').val();
+    let isLoginChk = isLogin.toLowerCase() === "true" ? true : false;
+
 
     let blogUserName = $('#blogUserName').val();
 
@@ -154,15 +156,18 @@ $(document).ready(function(){
     }
     let nowUserName = getCookie("username");
 
-    if(followCheck && isLogin){
+    if(followCheck && isLoginChk){
         $('#followBtn').hide();
         $('#unfollowBtn').show();
+
     }
-    else if(!followCheck && isLogin){
+    else if(!followCheck && isLoginChk){
         $('#unfollowBtn').hide();
         $('#followBtn').show();
+
     }
-    if(blogUserName == nowUserName || !isLogin){
+    if(blogUserName == nowUserName || !isLoginChk){
+        console.log('본인이거나 로그인이 안되어있거나')
         $('#followBtn').hide();
         $('#unfollowBtn').hide();
     }
@@ -184,7 +189,7 @@ $(document).ready(function(){
                 $('#unfollowBtn').show();
             },
             error: function (err) {
-                alert('이미 팔로우 했습니다.');
+                console.log(err);
             }
 
         })

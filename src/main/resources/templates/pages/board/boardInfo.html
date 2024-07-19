@@ -12,7 +12,6 @@
 
     <style>
         a {
-            font-size: 20px;
             text-decoration: none; /* 밑줄 제거 */
             color: black; /* 글자 색상 검은색으로 설정 */
         }
@@ -66,7 +65,7 @@
 
         <div id="blog-info">
             <a id="blog-author" th:href="@{/blog/{username}(username=${board.userName})}" th:text="${board.blogName}">blogName</a>
-            <span id="blog-date" th:text="${board.createAt}">boardcreatedAt</span>
+            <span id="blog-date" th:text="${#temporals.format(board.createAt, 'yyyy-MM-dd HH:mm:ss')}">boardcreatedAt</span>
         </div>
         <div id="blog-tags">
 
