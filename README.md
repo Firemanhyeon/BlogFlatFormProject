@@ -89,18 +89,18 @@ create table category
         foreign key (pre_category) references blog.category (category_id)
             on update cascade on delete set null
 );
-create table blog.follow
+CREATE TABLE blog.follow
 (
-    follow_id    bigint auto_increment
-        primary key,
-    follower_id  bigint null,
-    following_id bigint null,
-    constraint chk_follows_unique_users
-        unique (follower_id, following_id),
-    constraint FKmow2qk674plvwyb4wqln37svv
-        foreign key (follower_id) references blog.user (user_id),
-    constraint FKqme6uru2g9wx9iysttk542esm
-        foreign key (following_id) references blog.user (user_id)
+    follow_id     BIGINT AUTO_INCREMENT PRIMARY KEY,
+    follower_id   BIGINT NOT NULL,
+    following_id  BIGINT NOT NULL,
+    follow_date   DATETIME(6) NULL,
+    CONSTRAINT FKmow2qk674plvwyb4wqln37svv
+        FOREIGN KEY (follower_id) REFERENCES blog.user (user_id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT FK8xiyj0q6jta6kqlkpdx9mr84c
+        FOREIGN KEY (following_id) REFERENCES blog.user (user_id)
+            ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 create table blog.likes
@@ -263,18 +263,18 @@ create table blog.user_roles
         foreign key (user_user_id) references blog.user (user_id)
 );
 
-create table blog.views
+CREATE TABLE blog.views
 (
-    view_id      bigint auto_increment
-        primary key,
-    view_created datetime(6) null,
-    board_id     bigint      null,
-    user_id      bigint      null,
-    constraint FK6xwaoc6lyg1841pysjlep8ess
-        foreign key (user_id) references blog.user (user_id)
-            on update cascade on delete cascade,
-    constraint FKmqpiy3lq3dq4x7h1mvt5obxyl
-        foreign key (board_id) references blog.board (board_id)
+    view_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    view_created DATETIME(6) NULL,
+    board_id     BIGINT NULL,
+    user_id      BIGINT NULL,
+    CONSTRAINT FK6xwaoc6lyg1841pysjlep8ess
+        FOREIGN KEY (user_id) REFERENCES blog.user (user_id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT FKmqpiy3lq3dq4x7h1mvt5obxyl
+        FOREIGN KEY (board_id) REFERENCES blog.board (board_id)
+            ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 ```
