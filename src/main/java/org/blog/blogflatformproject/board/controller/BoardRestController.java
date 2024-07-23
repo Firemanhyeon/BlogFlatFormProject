@@ -42,8 +42,10 @@ public class BoardRestController {
 
     @PutMapping("/updateboard")
     public ResponseEntity<String> updateBoard(@ModelAttribute Board board,
-                                              @RequestParam("seriesId") Long seriesId){
-        board.setSeries(seriesService.findById(seriesId));
+                                              @RequestParam(value = "seriesId", required = false) Long seriesId){
+        if(seriesId!=null){
+            board.setSeries(seriesService.findById(seriesId));
+        }
         if(boardService.updateBoard(board)!=null){
             return ResponseEntity.ok("ok");
         }else{
