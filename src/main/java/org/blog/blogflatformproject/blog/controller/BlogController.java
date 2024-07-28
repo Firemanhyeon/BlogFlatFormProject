@@ -1,5 +1,6 @@
 package org.blog.blogflatformproject.blog.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.blog.blogflatformproject.blog.domain.Blog;
@@ -14,9 +15,13 @@ import org.blog.blogflatformproject.user.service.FollowService;
 import org.blog.blogflatformproject.user.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/blog")
@@ -34,11 +39,11 @@ public class BlogController {
     //블로그이동
     @GetMapping("/{username}")
     public String goBlog(@PathVariable("username") String username, Model model,
-                         @CookieValue(value = "accessToken" , defaultValue = "" , required = false) String accessToken){
-        if(username.isEmpty()){
+                         @CookieValue(value = "accessToken", defaultValue = "", required = false) String accessToken) {
+        if (username.isEmpty()) {
             return "redirect:/user/loginform";
         }
-        Blog blog  = blogService.findByUsername(username);
+        Blog blog = blogService.findByUsername(username);
         User user = userService.findByUserName(username);
         String userImage = user.getImagePath();
         //팔로우 했는지 안했는지 확인
@@ -50,71 +55,75 @@ public class BlogController {
 
                 isFollow = true;
             }
-                isLogin= true;
+            isLogin = true;
         }
         List<Board> board = boardService.findByUsername(username);
-        if(blog!=null){
-            model.addAttribute("boardList" , board);
-            model.addAttribute("blog" , blog);
-            model.addAttribute("userImg",userImage);
-            model.addAttribute("username" , user.getUsername());
-            model.addAttribute("series",blog.getSeries());
-            model.addAttribute("isFollow",isFollow);
-            model.addAttribute("isLogin" , isLogin);
+        if (blog != null) {
+            model.addAttribute("boardList", board);
+            model.addAttribute("blog", blog);
+            model.addAttribute("userImg", userImage);
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("series", blog.getSeries());
+            model.addAttribute("isFollow", isFollow);
+            model.addAttribute("isLogin", isLogin);
             return "pages/blog/blog";
-        }else{
+        } else {
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
             return "pages/blog/blogform";
         }
     }
+
     //내 블로그이동
     @GetMapping("/mypage")
-    public String goMyBlog(@CookieValue(value = "username" , defaultValue = "") String username , Model model){
-        if(username.isEmpty()){
+    public String goMyBlog(@CookieValue(value = "username", defaultValue = "") String username, Model model) {
+        if (username.isEmpty()) {
             return "redirect:/user/loginform";
         }
-        Blog blog  = blogService.findByUsername(username);
+        Blog blog = blogService.findByUsername(username);
 
         User user = userService.findByUserName(username);
         String userImage = user.getImagePath();
-        boolean isFollow=false;
+        boolean isFollow = false;
         List<Board> board = boardService.findByUsername(username);
-        if(blog!=null){
-            model.addAttribute("boardList" , board);
-            model.addAttribute("blog" , blog);
-            model.addAttribute("userImg",userImage);
-            model.addAttribute("username" , user.getUsername());
-            model.addAttribute("isFollow",isFollow);
-            model.addAttribute("series",blog.getSeries());
+        if (blog != null) {
+            model.addAttribute("boardList", board);
+            model.addAttribute("blog", blog);
+            model.addAttribute("userImg", userImage);
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("isFollow", isFollow);
+            model.addAttribute("series", blog.getSeries());
             return "pages/blog/blog";
-        }else{
+        } else {
             //블로그를 생성하지않았을 시 블로그생성화면으로이동
             return "pages/blog/blogform";
         }
     }
+
     //블로그생성창으로 이동
     @GetMapping("/blogform")
-    public String goBlogForm(){
+    public String goBlogForm() {
         return "pages/blog/blogform";
     }
+
     //블로그생성
     @PostMapping("/blogcreate")
-    public String blogCreate(@ModelAttribute Blog blog , @CookieValue(value="username" , defaultValue = "") String username){
+    public String blogCreate(@ModelAttribute Blog blog,
+                             @CookieValue(value = "username", defaultValue = "") String username) {
 
-        if(blogService.saveBlog(blog , username)!=null){
-            return "redirect:/blog/"+username;
-        }else{
+        if (blogService.saveBlog(blog, username) != null) {
+            return "redirect:/blog/" + username;
+        } else {
             return "redirect:/blog/blogform";
         }
     }
 
     //유저 설정 페이지
     @GetMapping("/settings")
-    public String myBlogSetting(@CookieValue(value="username" , defaultValue = "") String username , Model model ){
+    public String myBlogSetting(@CookieValue(value = "username", defaultValue = "") String username, Model model) {
         //해당유저의 설정페이지로 이동하기
         User user = userService.findByUserName(username);
         Blog blog = blogService.findByUsername(username);
-        model.addAttribute("user" , user);
+        model.addAttribute("user", user);
         model.addAttribute("blog", blog);
         return "pages/user/userSetting";
     }
@@ -122,15 +131,16 @@ public class BlogController {
 
     //시리즈 만들기 페이지이동
     @GetMapping("/addSeriesForm")
-    public String addSeriesForm(){
+    public String addSeriesForm() {
         return "pages/blog/seriesForm";
     }
+
     //시리즈등록
     @PostMapping("/addseries")
     public String addSeries(@RequestParam("seriesTitle") String seriesTitle,
-                            @CookieValue(value="username" , defaultValue = "") String username ){
-        Series series = seriesService.addSeries(seriesTitle,username);
-        if(series.getSeriesId()!=null){
+                            @CookieValue(value = "username", defaultValue = "") String username) {
+        Series series = seriesService.addSeries(seriesTitle, username);
+        if (series.getSeriesId() != null) {
             return "redirect:/blog/mypage";
         }
         return "redirect:/blog/addSeriesForm";

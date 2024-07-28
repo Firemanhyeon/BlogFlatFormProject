@@ -1,13 +1,25 @@
 package org.blog.blogflatformproject.board.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.blog.blogflatformproject.blog.domain.Blog;
-import org.blog.blogflatformproject.blog.domain.Series;
-
-import java.time.LocalDate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.blog.blogflatformproject.blog.domain.Blog;
+import org.blog.blogflatformproject.blog.domain.Series;
 
 @Entity
 @Table(name = "board")
@@ -24,7 +36,7 @@ public class Board {
     @Column(name = "board_title")
     private String boardTitle;
 
-    @Column(name = "board_content",length = 10000)
+    @Column(name = "board_content", length = 10000)
     private String boardContent;
 
     @Column(name = "created_at")
@@ -45,8 +57,6 @@ public class Board {
     @ManyToOne
     @JoinColumn(name = "blog_id")
     private Blog blog;
-
-
 
 
     @ManyToOne
