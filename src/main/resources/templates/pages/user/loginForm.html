@@ -22,25 +22,34 @@
                                 <h2 class="text-uppercase text-center mb-5">로그인</h2>
                                 <form th:action="@{/login}" method="post" id="login">
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" id="username" class="form-control form-control-lg" name="username"/>
+                                        <input type="text" id="username" class="form-control form-control-lg"
+                                               name="username"/>
                                         <label class="form-label" for="username">아이디</label>
                                     </div>
 
 
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="password" id="password" class="form-control form-control-lg" name="password"/>
+                                        <input type="password" id="password" class="form-control form-control-lg"
+                                               name="password"/>
                                         <label class="form-label" for="password">비밀번호</label>
                                     </div>
 
 
                                     <div class="d-flex justify-content-center">
-                                        <button  type="button" data-mdb-button-init
-                                                 data-mdb-ripple-init class="btn btn-success btn-block btn-lg gradient-custom-4 text-body" id="loginBtn">로그인</button>
+                                        <button type="button" data-mdb-button-init
+                                                data-mdb-ripple-init
+                                                class="btn btn-success btn-block btn-lg gradient-custom-4 text-body"
+                                                id="loginBtn">로그인
+                                        </button>
                                     </div>
-                                    <img src="/image/github.png" alt="GitHub Logo" onclick="loginWithGithub()" style="width:70px; cursor:pointer">
-                                    <img src="/image/kakao.png" alt="GitHub Logo" style="cursor: pointer" onclick="loginWithKakao()">
+                                    <img src="/image/github.png" alt="GitHub Logo" onclick="loginWithGithub()"
+                                         style="width:70px; cursor:pointer">
+                                    <img src="/image/kakao.png" alt="GitHub Logo" style="cursor: pointer"
+                                         onclick="loginWithKakao()">
 
-                                    <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a th:href="@{/user/signInForm}" class="fw-bold text-body"><u>아이디 만들기</u></a></p>
+                                    <p class="text-center text-muted mt-5 mb-0">아이디가 없으신가요? <a
+                                            th:href="@{/user/signInForm}" class="fw-bold text-body"><u>아이디 만들기</u></a>
+                                    </p>
                                 </form>
                             </div>
                         </div>
@@ -50,46 +59,46 @@
         </div>
     </section>
     <script>
-        function loginWithGithub(){
-            console.log(123);
-            window.location.href="/oauth2/authorization/github";
+        function loginWithGithub() {
+            window.location.href = "/oauth2/authorization/github";
         }
-        function loginWithKakao(){
-            window.location.href="https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=289b00ad2e01aaf2f3cbf209a97a53ed&redirect_uri=http://localhost:8080/api/user/auth/kakao/callback"
+
+        function loginWithKakao() {
+            window.location.href = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=289b00ad2e01aaf2f3cbf209a97a53ed&redirect_uri=http://localhost:8080/api/user/auth/kakao/callback"
         }
-        $(document).ready(function(){
-            $("#loginBtn").click(function(e){
+
+        $(document).ready(function () {
+            $("#loginBtn").click(function (e) {
                 e.preventDefault();
                 let id = $("#username").val();
                 let pwd = $("#password").val();
-                if(id!='' && pwd!=''){
+                if (id != '' && pwd != '') {
                     $.ajax({
-                        url:"/api/user/login",
-                        method:"POST",
+                        url: "/api/user/login",
+                        method: "POST",
                         contentType: 'application/json',
-                        data:JSON.stringify({
-                            username:id,
-                            password:pwd
+                        data: JSON.stringify({
+                            username: id,
+                            password: pwd
                         }),
-                        success:function(result){
+                        success: function (result) {
                             console.log(result);
-                            if(result.accessToken!=null){
-                                window.location.href="/blog/"+result.userName;
+                            if (result.accessToken != null) {
+                                window.location.href = "/blog/" + result.userName;
                             }
                         },
-                        error:function (err){
-                            if(err.status===401){
+                        error: function (err) {
+                            if (err.status === 401) {
                                 alert("비밀번호가 올바르지 않습니다.")
                             }
                             console.log(err.status);
                         }
                     })
-                }else{
+                } else {
                     alert('빈값을 확인하세요');
                     return;
                 }
             })
-
 
 
         })
